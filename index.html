@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamble Web - Chơi Để Trải Nghiệm</title>
+    <script>
+        (function(){
+            const originalWarn = console.warn;
+            console.warn = function(...args){
+                if (args.some(a => typeof a === 'string' && a.includes('cdn.tailwindcss.com'))) return;
+                originalWarn.apply(console, args);
+            };
+        })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@400;600;800&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
+        .font-numbers { font-family: 'Orbitron', sans-serif; }
+        .money-positive { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.8), 0 0 20px rgba(74, 222, 128, 0.4); }
+        .money-negative { color: #f87171; text-shadow: 0 0 10px rgba(248, 113, 113, 0.8), 0 0 20px rgba(248, 113, 113, 0.4); }
+        .glass-panel { background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-green { background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%); box-shadow: 0 4px 0 #15803d, 0 5px 10px rgba(0,0,0,0.5); transition: all 0.1s; }
+        .btn-green:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 #15803d, 0 2px 5px rgba(0,0,0,0.5); }
+        .btn-green:disabled { filter: grayscale(100%); cursor: not-allowed; box-shadow: none; transform: none; }
+        .btn-orange { background: linear-gradient(180deg, #f97316 0%, #ea580c 100%); box-shadow: 0 4px 0 #c2410c, 0 5px 10px rgba(0,0,0,0.5); transition: all 0.1s; }
+        .btn-orange:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 #c2410c, 0 2px 5px rgba(0,0,0,0.5); }
+        .btn-orange:disabled { filter: grayscale(100%); cursor: not-allowed; box-shadow: none; transform: none; }
+        .btn-blue { background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%); box-shadow: 0 4px 0 #1d4ed8, 0 5px 10px rgba(0,0,0,0.5); transition: all 0.1s; }
+        .btn-blue:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 #1d4ed8, 0 2px 5px rgba(0,0,0,0.5); }
+        .btn-blue:disabled { filter: grayscale(100%); cursor: not-allowed; box-shadow: none; transform: none; }
+        .modal-overlay { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake-anim { animation: shake 0.4s ease-in-out; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.25); border-top-color: currentColor; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: -2px; }
+
+        .dice-scene { width: 96px; height: 96px; perspective: 500px; }
+        .die3d { width: 96px; height: 96px; position: relative; transform-style: preserve-3d; transition: transform 0.85s cubic-bezier(.22,1.1,.4,1); transform: rotateX(0deg) rotateY(0deg); }
+        .die3d .face { position: absolute; width: 96px; height: 96px; background: linear-gradient(145deg, #ffffff, #e2e8f0); border-radius: 16px; box-shadow: inset 0 0 12px rgba(0,0,0,0.15), 0 0 0 2px rgba(0,0,0,0.06); display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); padding: 14px; box-sizing: border-box; }
+        .die3d .pip { width: 15px; height: 15px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #475569, #0f172a); align-self: center; justify-self: center; opacity: 0; }
+        .face.v1 .pip:nth-child(5) { opacity: 1; }
+        .face.v2 .pip:nth-child(1), .face.v2 .pip:nth-child(9) { opacity: 1; }
+        .face.v3 .pip:nth-child(1), .face.v3 .pip:nth-child(5), .face.v3 .pip:nth-child(9) { opacity: 1; }
+        .face.v4 .pip:nth-child(1), .face.v4 .pip:nth-child(3), .face.v4 .pip:nth-child(7), .face.v4 .pip:nth-child(9) { opacity: 1; }
+        .face.v5 .pip:nth-child(1), .face.v5 .pip:nth-child(3), .face.v5 .pip:nth-child(5), .face.v5 .pip:nth-child(7), .face.v5 .pip:nth-child(9) { opacity: 1; }
+        .face.v6 .pip:nth-child(1), .face.v6 .pip:nth-child(3), .face.v6 .pip:nth-child(4), .face.v6 .pip:nth-child(6), .face.v6 .pip:nth-child(7), .face.v6 .pip:nth-child(9) { opacity: 1; }
+
+        .wheel-outer-ring { background: conic-gradient(from 0deg, #92400e, #d97706, #92400e, #d97706, #92400e, #d97706, #92400e, #d97706, #92400e); box-shadow: 0 0 25px rgba(217,119,6,0.5), inset 0 0 15px rgba(0,0,0,0.5); }
+        .wheel-rivet { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fde68a, #92400e); box-shadow: 0 0 4px rgba(0,0,0,0.6); }
+        #wheelCanvas { transition: transform 4.2s cubic-bezier(0.12, 0.85, 0.1, 1); }
+        .wheel-pointer { width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 28px solid #facc15; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); z-index: 20; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+        .wheel-readout { font-family: 'Orbitron', sans-serif; background: #111827; border: 2px solid #b45309; box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 10px rgba(217,119,6,0.3); }
+
+        .wheel-predict-btn { position: relative; border: none; cursor: pointer; transform: translateY(0); transition: transform 0.1s, box-shadow 0.1s, filter 0.15s; }
+        .wheel-predict-btn.mult2 { background: linear-gradient(180deg,#4ade80,#16a34a); box-shadow: 0 5px 0 #15803d, 0 0 10px rgba(74,222,128,0.4); color:#052e16; }
+        .wheel-predict-btn.mult3 { background: linear-gradient(180deg,#60a5fa,#2563eb); box-shadow: 0 5px 0 #1d4ed8, 0 0 10px rgba(96,165,250,0.4); color:#172554; }
+        .wheel-predict-btn.mult5 { background: linear-gradient(180deg,#f87171,#dc2626); box-shadow: 0 5px 0 #991b1b, 0 0 10px rgba(248,113,113,0.4); color:#450a0a; }
+        .wheel-predict-btn.mult10 { background: linear-gradient(180deg,#facc15,#ca8a04); box-shadow: 0 5px 0 #854d0e, 0 0 14px rgba(250,204,21,0.55); color:#422006; }
+        .wheel-predict-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+        .wheel-predict-btn.picked { transform: translateY(4px) scale(1.03); outline: 2px solid #ffffff; box-shadow: 0 1px 0 rgba(0,0,0,0.3), 0 0 16px #ffffff; }
+        .wheel-predict-btn:disabled { filter: grayscale(45%) brightness(0.75); cursor: not-allowed; }
+
+        .duck-track { background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.16) 0 2px, transparent 2px 46px), linear-gradient(180deg, #2c5f7c 0%, #163044 100%); box-shadow: inset 0 2px 8px rgba(0,0,0,0.35); }
+        .duck { transition: left 0.3s ease-in-out; }
+        .finish-flag { background: repeating-conic-gradient(#f8fafc 0% 25%, #1e293b 0% 50%) 50% / 14px 14px; }
+        .duck-icon-lg { width: 44px; height: 44px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
+        .duck-icon-sm { width: 28px; height: 28px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
+
+        /* ---- Race scenery & water effects ---- */
+        .race-scenery { background: linear-gradient(180deg,#38bdf8 0%,#7dd3fc 55%,#a7e8c5 100%); border-radius: 12px 12px 0 0; position: relative; overflow: hidden; height: 56px; }
+        .race-sun { position:absolute; top:8px; right:22px; width:30px; height:30px; border-radius:50%; background:radial-gradient(circle,#fef9c3,#facc15); box-shadow:0 0 18px 6px rgba(250,204,21,0.6); }
+        .race-cloud { position:absolute; background:#fff; border-radius:50px; opacity:0.85; }
+        .race-cloud::before, .race-cloud::after { content:''; position:absolute; background:#fff; border-radius:50%; }
+        @keyframes cloudDrift { from { transform: translateX(0); } to { transform: translateX(30px); } }
+        .reed-strip { position:relative; height:14px; background:linear-gradient(180deg,#166534,#14532d); border-radius:0 0 8px 8px; overflow:hidden; }
+        .reed { position:absolute; bottom:0; width:3px; background:#22c55e; border-radius:2px 2px 0 0; transform-origin:bottom center; animation: reedSway 2.6s ease-in-out infinite; }
+        @keyframes reedSway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+        .lily-pad { position:absolute; border-radius:50%; background:radial-gradient(circle at 35% 35%, #4ade80, #15803d); opacity:0.55; animation: lilyFloat 4s ease-in-out infinite; }
+        @keyframes lilyFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+        .wave-overlay { position:absolute; inset:0; pointer-events:none; opacity:0.25; background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.5) 0 2px, transparent 2px 26px); background-size: 200% 100%; animation: waveFlow 3.5s linear infinite; }
+        @keyframes waveFlow { from { background-position-x: 0; } to { background-position-x: -160px; } }
+        .splash-particle { position:absolute; bottom:6px; width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.85); pointer-events:none; animation: splashPop 0.55s ease-out forwards; }
+        @keyframes splashPop { 0% { transform: translateY(0) scale(1); opacity:0.9; } 100% { transform: translateY(-10px) scale(0.2); opacity:0; } }
+        .duck-boost { filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)) drop-shadow(0 0 6px rgba(255,255,255,0.6)); }
+
+        .icon-btn { display: inline-block; line-height: 1; }
+        .icon-header-btn { background: rgba(31,41,55,0.8); border: 1px solid #374151; border-radius: 9999px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: background 0.15s, transform 0.1s; cursor:pointer; }
+        .icon-header-btn:hover { background: rgba(55,65,81,0.9); }
+        .icon-header-btn:active { transform: scale(0.92); }
+
+        .mine-cell { transition: background 0.2s, border-color 0.2s, box-shadow 0.2s; }
+        .mine-cell.selected { border-color: #facc15 !important; box-shadow: 0 0 10px rgba(250,204,21,0.5); background: #78350f66 !important; color: #facc15 !important; }
+        .mine-cell.revealed { cursor: default; background: #1e293b !important; }
+        .mine-cell:disabled { cursor: not-allowed; }
+        .mine-cell.spinning { animation: mineSpinPulse 0.14s linear infinite; }
+        @keyframes mineSpinPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(0.9); } }
+        .mine-cell.settle { animation: mineSettle 0.32s cubic-bezier(.34,1.56,.64,1); }
+        @keyframes mineSettle { 0% { transform: scale(0.65) rotate(-8deg); } 60% { transform: scale(1.18) rotate(3deg); } 100% { transform: scale(1) rotate(0deg); } }
+
+        .card { width: 58px; height: 82px; border-radius: 8px; background: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); border: 1px solid #cbd5e1; color: #0f172a; font-weight: 800; flex-shrink: 0; }
+        .card.red { color: #dc2626; }
+        .card.back { background: repeating-linear-gradient(45deg,#1e3a8a,#1e3a8a 6px,#1d4ed8 6px,#1d4ed8 12px); border: 1px solid #1e3a8a; }
+        .card-deal-fly { animation: cardFlyIn 0.4s cubic-bezier(.2,.8,.25,1); }
+        @keyframes cardFlyIn { 0% { transform: translate(-130px,-36px) rotate(-30deg) scale(0.55); opacity:0; } 55% { opacity:1; } 100% { transform: translate(0,0) rotate(0deg) scale(1); opacity:1; } }
+
+        /* ---- Blackjack dealer & shoe ---- */
+        .dealer-badge { width: 46px; height: 46px; border-radius: 9999px; background: linear-gradient(135deg,#4338ca,#1e1b4b); display:flex; align-items:center; justify-content:center; font-size:22px; border:2px solid #818cf8; box-shadow:0 0 14px rgba(99,102,241,0.5); flex-shrink:0; }
+        .card-shoe { position:relative; width:46px; height:60px; flex-shrink:0; }
+        .card-shoe .shoe-card { position:absolute; width:38px; height:52px; border-radius:5px; background: repeating-linear-gradient(45deg,#1e3a8a,#1e3a8a 5px,#1d4ed8 5px,#1d4ed8 10px); border:1px solid #1e3a8a; box-shadow:0 2px 4px rgba(0,0,0,0.4); }
+        .card-shoe .shoe-card:nth-child(1) { transform: rotate(-8deg) translate(-3px,2px); }
+        .card-shoe .shoe-card:nth-child(2) { transform: rotate(-2deg) translate(0,1px); }
+        .card-shoe .shoe-card:nth-child(3) { transform: rotate(5deg) translate(3px,0); }
+        .card-shoe .shoe-box { position:absolute; bottom:-4px; left:-4px; right:-4px; height:14px; background:#78350f; border-radius:3px; border:1px solid #92400e; box-shadow:0 3px 4px rgba(0,0,0,0.4); }
+
+        /* ---- Quick-bet % buttons ---- */
+        .quick-bet-btn { background:#374151; border:1px solid #4b5563; border-radius:6px; padding:7px 0; font-size:11px; font-weight:800; color:#e5e7eb; transition: background 0.15s, transform 0.1s; cursor:pointer; }
+        .quick-bet-btn:hover { background:#4b5563; }
+        .quick-bet-btn:active { transform: scale(0.94); }
+        .quick-bet-btn.quick-bet-max { background: linear-gradient(180deg,#facc15,#ca8a04); color:#422006; border-color:#ca8a04; }
+        .quick-bet-btn.quick-bet-max:hover { filter:brightness(1.08); }
+
+        /* ---- New player protection ---- */
+        .protection-badge { background: linear-gradient(135deg,#0891b2,#155e75); border:1px solid #22d3ee; }
+    </style>
+</head>
+<body class="h-screen flex flex-col relative">
+
+    <div id="authModal" class="fixed inset-0 modal-overlay z-[200] flex items-center justify-center">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
+            <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center font-bold text-4xl mx-auto mb-4 shadow-[0_0_20px_rgba(168,85,247,0.5)]">G</div>
+            <h2 class="text-3xl font-bold mb-2">Tạo Tài Khoản</h2>
+            <p class="text-gray-400 mb-6 text-sm">Nhập biệt danh để tạo hồ sơ mới — hoặc nhập lại biệt danh cũ để tiếp tục tiến trình đã lưu.</p>
+            <input type="text" id="usernameInput" placeholder="Nhập biệt danh của bạn..." class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white mb-2 outline-none focus:border-purple-500 transition">
+            <div id="authError" class="text-red-400 text-xs mb-4 h-4 text-left"></div>
+            <button id="btnLogin" type="button" class="w-full py-3 btn-blue font-bold text-lg rounded-xl shadow-lg">Vào Sòng Bạc →</button>
+            <p id="authStatus" class="text-sm text-yellow-400 mt-4 hidden"><span class="spinner"></span> Đang tải hồ sơ...</p>
+        </div>
+    </div>
+
+    <div id="customModal" class="fixed inset-0 modal-overlay z-[250] flex items-center justify-center hidden">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl">
+            <div id="customModalIcon" class="text-4xl mb-3">ℹ️</div>
+            <h3 id="customModalTitle" class="text-xl font-bold mb-2">Thông Báo</h3>
+            <p id="customModalText" class="text-gray-300 text-sm mb-6"></p>
+            <button onclick="closeCustomModal()" class="w-full py-2.5 btn-blue font-bold rounded-xl">Đồng Ý</button>
+        </div>
+    </div>
+
+    <div id="avatarModal" class="fixed inset-0 modal-overlay z-[220] flex items-center justify-center hidden">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 max-w-md w-full relative shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-purple-300">Chọn Avatar</h3>
+                <button onclick="closeAvatarModal()" class="text-gray-400 hover:text-white text-xl font-bold">×</button>
+            </div>
+            <div class="grid grid-cols-5 gap-3" id="avatarGrid"></div>
+        </div>
+    </div>
+
+    <div id="titlesModal" class="fixed inset-0 modal-overlay z-[220] flex items-center justify-center hidden">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 max-w-md w-full relative shadow-2xl max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-3">
+                <h3 class="text-xl font-bold text-yellow-300">🏅 Danh Hiệu</h3>
+                <button onclick="toggleTitlesModal()" class="text-gray-400 hover:text-white text-xl font-bold">×</button>
+            </div>
+            <p class="text-[11px] text-gray-500 mb-3">Mở khóa danh hiệu bằng cách chơi và đạt thành tích. Trang bị một danh hiệu để hiển thị cạnh tên của bạn.</p>
+            <div id="titlesList" class="space-y-2 overflow-y-auto flex-grow pr-1"></div>
+        </div>
+    </div>
+
+    <div id="historyModal" class="fixed inset-0 modal-overlay z-[220] flex items-center justify-center hidden">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 max-w-md w-full relative shadow-2xl max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-3">
+                <h3 class="text-xl font-bold text-blue-300">📜 Lịch Sử Giao Dịch</h3>
+                <button onclick="toggleHistoryModal()" class="text-gray-400 hover:text-white text-xl font-bold">×</button>
+            </div>
+            <div id="historyList" class="space-y-2 overflow-y-auto flex-grow pr-1"></div>
+        </div>
+    </div>
+
+    <div id="crashHistoryModal" class="fixed inset-0 modal-overlay z-[220] flex items-center justify-center hidden">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 max-w-md w-full relative shadow-2xl max-h-[70vh] flex flex-col">
+            <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-3">
+                <h3 class="text-xl font-bold text-red-300">🚀 Lịch Sử Hệ Số</h3>
+                <button onclick="toggleCrashHistoryModal()" class="text-gray-400 hover:text-white text-xl font-bold">×</button>
+            </div>
+            <div id="crashHistoryList" class="overflow-y-auto flex-grow pr-1"></div>
+        </div>
+    </div>
+
+    <div id="protectionModal" class="fixed inset-0 modal-overlay z-[220] flex items-center justify-center hidden">
+        <div class="bg-gray-800 border border-cyan-800 rounded-2xl p-6 max-w-md w-full relative shadow-2xl">
+            <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-3">
+                <h3 class="text-xl font-bold text-cyan-300">🛡️ Bảo Hộ Người Mới</h3>
+                <button onclick="toggleProtectionModal()" class="text-gray-400 hover:text-white text-xl font-bold">×</button>
+            </div>
+            <div id="protectionModalBody"></div>
+        </div>
+    </div>
+
+    <header class="glass-panel sticky top-0 z-50 flex justify-between items-center px-4 md:px-6 py-4">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleLeaderboardModal()" class="text-gray-300 hover:text-white p-2 rounded-lg bg-gray-800/80 border border-gray-700 transition" title="Bảng Xếp Hạng">
+                <span class="icon-btn text-xl font-bold">≡</span>
+            </button>
+            <div class="flex items-center gap-3 cursor-pointer" onclick="showView('home')">
+                <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center font-bold text-xl">G</div>
+                <h1 class="text-xl md:text-2xl font-bold tracking-wider hidden sm:block">GAMBLE<span class="text-purple-400">WEB</span></h1>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 md:gap-4">
+            <button id="btnSoundToggle" onclick="toggleSound()" class="icon-header-btn hidden sm:flex" title="Bật/tắt âm thanh">🔊</button>
+            <button id="btnProtectionBadge" onclick="toggleProtectionModal()" class="icon-header-btn hidden sm:flex" title="Bảo Hộ Người Mới">🛡️</button>
+            <button onclick="toggleTitlesModal()" class="icon-header-btn hidden sm:flex" title="Danh hiệu">🏅</button>
+            <button onclick="toggleHistoryModal()" class="icon-header-btn hidden sm:flex" title="Lịch sử giao dịch">📜</button>
+            <button onclick="showDailyModal()" class="text-yellow-400 hover:text-yellow-300 transition flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 px-3 py-1.5 rounded-full text-sm">
+                🎁 <span class="hidden sm:inline">Nhận Quà</span>
+            </button>
+            <div class="glass-panel px-3 py-1.5 md:px-4 md:py-2 rounded-full flex items-center gap-2 border border-gray-700">
+                <span class="icon-btn text-gray-400">💰</span>
+                <span id="userBalance" class="font-numbers text-lg md:text-xl font-bold money-positive">Đang tải...</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="text-right hidden md:block">
+                    <div id="displayUsername" class="font-bold text-sm text-purple-300">Player</div>
+                    <div id="displayTitleChip" class="text-[10px] text-yellow-400 font-bold hidden"></div>
+                </div>
+                <div class="w-10 h-10 rounded-full border-2 border-purple-500 flex items-center justify-center font-bold text-sm text-white cursor-pointer" id="avatarBox" onclick="openAvatarModal()" title="Đổi avatar" style="background: linear-gradient(135deg,#8b5cf6,#4f46e5);">?</div>
+            </div>
+        </div>
+    </header>
+
+    <div id="leaderboardModal" class="fixed inset-0 modal-overlay z-[150] flex items-center justify-center hidden">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-6 max-w-md w-full relative shadow-2xl max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-1 border-b border-gray-700 pb-3">
+                <h3 class="text-2xl font-bold text-yellow-400 flex items-center gap-2">🏆 Bảng Xếp Hạng Gamble</h3>
+                <button onclick="toggleLeaderboardModal()" class="text-gray-400 hover:text-white text-xl font-bold">×</button>
+            </div>
+            <p class="text-[11px] text-gray-500 mb-3">Hạng #1 nhận danh hiệu Thần Tài, #2 và #3 nhận huy hiệu bạc/đồng — tính theo số dư thật của người chơi. Chỉ hiển thị người chơi thật đã từng đăng nhập.</p>
+            <div id="leaderboardModalList" class="space-y-3 overflow-y-auto flex-grow pr-1">
+                <div class="text-center text-gray-500 py-4"><span class="spinner"></span> Đang tải danh sách...</div>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow p-4 md:p-6 overflow-y-auto">
+
+        <div id="homeView" class="max-w-6xl mx-auto hidden">
+            <div class="bg-gradient-to-r from-indigo-900 to-purple-900 rounded-2xl p-6 md:p-8 mb-4 flex justify-between items-center shadow-2xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-3">Chào mừng trở lại!</h2>
+                    <p class="text-gray-300 max-w-xl text-sm md:text-base">Sòng bạc giải trí — chỉ dùng tiền ảo, không có giá trị thực. Khám phá 6 trò chơi bên dưới!</p>
+                </div>
+                <div class="text-9xl absolute right-0 bottom-0 opacity-20 transform rotate-12 text-blue-400">💎</div>
+            </div>
+            <div id="homeProtectionBanner" class="hidden mb-8 protection-badge rounded-xl px-4 py-3 flex items-center justify-between gap-3 cursor-pointer" onclick="toggleProtectionModal()">
+                <div class="flex items-center gap-2 text-sm md:text-base font-bold text-cyan-50">🛡️ <span id="homeProtectionText">Đang được Bảo Hộ Người Mới</span></div>
+                <span class="text-xs text-cyan-100/80 underline">Xem chi tiết →</span>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="col-span-1 lg:col-span-3">
+                    <h3 class="text-2xl font-bold mb-6 border-b border-gray-700 pb-2">🎮 Danh mục trò chơi</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                        <div class="glass-panel rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer group border border-transparent hover:border-red-500" onclick="showView('crash')">
+                            <div class="h-32 bg-gray-900 relative overflow-hidden flex items-center justify-center">
+                                <span class="inline-block text-5xl group-hover:scale-110 transition duration-300">🚀</span>
+                            </div>
+                            <div class="p-4 bg-gray-800/50">
+                                <h4 class="text-xl font-bold mb-1">Tên Lửa</h4>
+                                <p class="text-sm text-gray-400">Canh tên lửa bay cao để nhân tiền, kịch trần x100.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer group border border-transparent hover:border-blue-500" onclick="showView('dice')">
+                            <div class="h-32 bg-gray-900 relative overflow-hidden flex items-center justify-center">
+                                <span class="inline-block text-5xl group-hover:rotate-12 transition duration-300">🎲</span>
+                            </div>
+                            <div class="p-4 bg-gray-800/50">
+                                <h4 class="text-xl font-bold mb-1">Xúc Xắc</h4>
+                                <p class="text-sm text-gray-400">Luật craps chuẩn quốc tế, lắc xúc xắc 3D thật.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer group border border-transparent hover:border-green-500" onclick="showView('wheel')">
+                            <div class="h-32 bg-gray-900 relative overflow-hidden flex items-center justify-center">
+                                <svg viewBox="0 0 100 100" class="w-14 h-14 group-hover:rotate-180 transition duration-700" xmlns="http://www.w3.org/2000/svg">
+                                    <g transform="translate(50,50)">
+                                        <path d="M0 0 L0 -45 A45 45 0 0 1 31.8 -31.8 Z" fill="#facc15"/>
+                                        <path d="M0 0 L31.8 -31.8 A45 45 0 0 1 45 0 Z" fill="#22c55e"/>
+                                        <path d="M0 0 L45 0 A45 45 0 0 1 31.8 31.8 Z" fill="#3b82f6"/>
+                                        <path d="M0 0 L31.8 31.8 A45 45 0 0 1 0 45 Z" fill="#ef4444"/>
+                                        <path d="M0 0 L0 45 A45 45 0 0 1 -31.8 31.8 Z" fill="#facc15"/>
+                                        <path d="M0 0 L-31.8 31.8 A45 45 0 0 1 -45 0 Z" fill="#22c55e"/>
+                                        <path d="M0 0 L-45 0 A45 45 0 0 1 -31.8 -31.8 Z" fill="#3b82f6"/>
+                                        <path d="M0 0 L-31.8 -31.8 A45 45 0 0 1 0 -45 Z" fill="#ef4444"/>
+                                        <circle r="45" fill="none" stroke="#0f172a" stroke-width="3"/>
+                                        <circle r="9" fill="#111827" stroke="#facc15" stroke-width="2.5"/>
+                                    </g>
+                                    <path d="M50 2 L43 15 L57 15 Z" fill="#facc15"/>
+                                </svg>
+                            </div>
+                            <div class="p-4 bg-gray-800/50">
+                                <h4 class="text-xl font-bold mb-1">Vòng Quay May Mắn</h4>
+                                <p class="text-sm text-gray-400">Đoán đúng ô dừng lại để nhân tiền x2 đến x10.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer group border border-transparent hover:border-yellow-500" onclick="showView('race')">
+                            <div class="h-32 bg-gray-900 relative overflow-hidden flex items-center justify-center gap-1">
+                                <svg viewBox="0 0 100 80" class="w-9 h-9" style="color:#22d3ee;" xmlns="http://www.w3.org/2000/svg"><ellipse cx="44" cy="54" rx="34" ry="22" fill="currentColor"/><circle cx="66" cy="30" r="18" fill="currentColor"/><path d="M80 27 L97 21 L97 35 Z" fill="currentColor"/><circle cx="70" cy="26" r="3.2" fill="#0f172a"/></svg>
+                                <svg viewBox="0 0 100 80" class="w-9 h-9" style="color:#4ade80;" xmlns="http://www.w3.org/2000/svg"><ellipse cx="44" cy="54" rx="34" ry="22" fill="currentColor"/><circle cx="66" cy="30" r="18" fill="currentColor"/><path d="M80 27 L97 21 L97 35 Z" fill="currentColor"/><circle cx="70" cy="26" r="3.2" fill="#0f172a"/></svg>
+                                <svg viewBox="0 0 100 80" class="w-9 h-9" style="color:#a78bfa;" xmlns="http://www.w3.org/2000/svg"><ellipse cx="44" cy="54" rx="34" ry="22" fill="currentColor"/><circle cx="66" cy="30" r="18" fill="currentColor"/><path d="M80 27 L97 21 L97 35 Z" fill="currentColor"/><circle cx="70" cy="26" r="3.2" fill="#0f172a"/></svg>
+                                <svg viewBox="0 0 100 80" class="w-9 h-9" style="color:#f472b6;" xmlns="http://www.w3.org/2000/svg"><ellipse cx="44" cy="54" rx="34" ry="22" fill="currentColor"/><circle cx="66" cy="30" r="18" fill="currentColor"/><path d="M80 27 L97 21 L97 35 Z" fill="currentColor"/><circle cx="70" cy="26" r="3.2" fill="#0f172a"/></svg>
+                            </div>
+                            <div class="p-4 bg-gray-800/50">
+                                <h4 class="text-xl font-bold mb-1">Đua Vịt Siêu Tốc</h4>
+                                <p class="text-sm text-gray-400">4 vận động viên vịt tranh tài, đoán đúng đội về nhất để nhân bốn tiền cược.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer group border border-transparent hover:border-cyan-500" onclick="showView('mines')">
+                            <div class="h-32 bg-gray-900 relative overflow-hidden flex items-center justify-center">
+                                <span class="inline-block text-5xl group-hover:scale-110 transition duration-300">💎</span>
+                            </div>
+                            <div class="p-4 bg-gray-800/50">
+                                <h4 class="text-xl font-bold mb-1">Đào Kim Cương</h4>
+                                <p class="text-sm text-gray-400">Chọn ô để đào, chỉ ô bạn chọn mới được mở, tìm kim cương nhận thưởng.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer group border border-transparent hover:border-indigo-500" onclick="showView('blackjack')">
+                            <div class="h-32 bg-gray-900 relative overflow-hidden flex items-center justify-center">
+                                <span class="inline-block text-5xl group-hover:rotate-6 transition duration-300">🃏</span>
+                            </div>
+                            <div class="p-4 bg-gray-800/50">
+                                <h4 class="text-xl font-bold mb-1">Xì Dách</h4>
+                                <p class="text-sm text-gray-400">Luật Blackjack chuẩn: Rút bài, Dừng, Nhân đôi, Tách bài.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="crashView" class="max-w-6xl mx-auto hidden">
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="showView('home')" class="text-gray-400 hover:text-white flex items-center gap-2">← Về sảnh chính</button>
+                <button onclick="toggleCrashHistoryModal()" class="text-gray-300 hover:text-white text-sm bg-gray-800/80 border border-gray-700 px-3 py-1.5 rounded-lg">📜 Lịch Sử</button>
+            </div>
+            <div class="max-w-3xl mx-auto glass-panel rounded-xl p-6 flex flex-col items-center">
+                <div id="crashContainer" class="w-full relative overflow-hidden rounded-xl border-2 border-gray-700 bg-gray-900 h-[350px]">
+                    <div id="crashMultiplierText" class="absolute top-[35%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-numbers text-white drop-shadow-lg text-6xl font-bold z-10">1.00x</div>
+                    <div id="crashMessage" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-red-500 hidden z-20 whitespace-nowrap bg-black/80 px-6 py-2 rounded-xl">NỔ! MẤT CƯỢC</div>
+                    <canvas id="crashCanvas" class="absolute inset-0 w-full h-full"></canvas>
+                </div>
+                <div class="w-full mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-800 p-4 rounded-xl">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm text-gray-400">Số tiền cược ($) — kịch trần x100</label>
+                        <div class="flex bg-gray-900 rounded-lg border border-gray-700 p-1">
+                            <input type="number" id="crashBetAmount" value="10" step="0.01" min="1" onblur="sanitizeBetInput(this)" class="bg-transparent w-full outline-none text-xl font-numbers px-2 text-white">
+                        </div>
+                        <div class="grid grid-cols-5 gap-1 mt-2">
+                            <button type="button" onclick="setQuickBet('crashBetAmount',0.10)" class="quick-bet-btn">10%</button>
+                            <button type="button" onclick="setQuickBet('crashBetAmount',0.25)" class="quick-bet-btn">25%</button>
+                            <button type="button" onclick="setQuickBet('crashBetAmount',0.50)" class="quick-bet-btn">50%</button>
+                            <button type="button" onclick="setQuickBet('crashBetAmount',0.75)" class="quick-bet-btn">75%</button>
+                            <button type="button" onclick="setQuickBet('crashBetAmount',1)" class="quick-bet-btn quick-bet-max">TẤT CẢ</button>
+                        </div>
+                    </div>
+                    <div class="flex items-end h-full">
+                        <button id="btnCrashBet" onclick="crashPlaceBet()" class="w-full h-12 btn-green text-xl font-bold rounded-lg uppercase tracking-wider">Đặt Cược</button>
+                        <button id="btnCrashCashOut" onclick="crashCashOut()" class="w-full h-12 btn-orange text-xl font-bold rounded-lg uppercase tracking-wider hidden flex items-center justify-center gap-2">
+                            💰 CASHOUT / DỪNG <span id="crashCashOutAmount" class="font-numbers text-lg"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="diceView" class="max-w-6xl mx-auto hidden">
+            <button onclick="showView('home')" class="mb-4 text-gray-400 hover:text-white flex items-center gap-2">← Về sảnh chính</button>
+            <div class="glass-panel rounded-xl p-8 max-w-3xl mx-auto border border-blue-900/50">
+                <div class="text-center mb-6">
+                    <h2 class="text-3xl font-bold text-blue-400 mb-2">🎲 Xúc Xắc</h2>
+                    <p class="text-gray-400 text-sm">Luật craps chuẩn: Lần đầu ra 7 hoặc 11 (Thắng) | 2, 3 hoặc 12 (Thua). Số khác thành điểm mục tiêu — ra lại số đó thì thắng, ra 7 thì thua ("seven out").</p>
+                </div>
+                <div class="flex justify-center gap-10 mb-8" id="diceContainer">
+                    <div class="dice-scene"><div class="die3d" id="die1Cube"></div></div>
+                    <div class="dice-scene"><div class="die3d" id="die2Cube"></div></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-6 bg-gray-900/80 p-4 rounded-xl border border-gray-700 text-center">
+                    <div>
+                        <div class="text-gray-400 text-sm">Điểm Mục Tiêu</div>
+                        <div id="diceTarget" class="text-3xl font-bold text-green-400 font-numbers">-</div>
+                    </div>
+                    <div>
+                        <div class="text-gray-400 text-sm">Số Tử (Seven Out)</div>
+                        <div id="diceDeath" class="text-3xl font-bold text-red-500 font-numbers">-</div>
+                    </div>
+                </div>
+                <div id="diceMessage" class="text-center text-xl font-bold mb-6 h-8 text-yellow-400">Đặt cược để bắt đầu ván mới!</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-800 p-4 rounded-xl">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm text-gray-400">Tiền cược ($) - Thắng x2</label>
+                        <div class="flex bg-gray-900 rounded-lg border border-gray-700 p-1">
+                            <input type="number" id="diceBetAmount" value="50" step="0.01" min="1" onblur="sanitizeBetInput(this)" class="bg-transparent w-full outline-none text-xl font-numbers px-2 text-white">
+                        </div>
+                        <div class="grid grid-cols-5 gap-1 mt-2">
+                            <button type="button" onclick="setQuickBet('diceBetAmount',0.10)" class="quick-bet-btn">10%</button>
+                            <button type="button" onclick="setQuickBet('diceBetAmount',0.25)" class="quick-bet-btn">25%</button>
+                            <button type="button" onclick="setQuickBet('diceBetAmount',0.50)" class="quick-bet-btn">50%</button>
+                            <button type="button" onclick="setQuickBet('diceBetAmount',0.75)" class="quick-bet-btn">75%</button>
+                            <button type="button" onclick="setQuickBet('diceBetAmount',1)" class="quick-bet-btn quick-bet-max">TẤT CẢ</button>
+                        </div>
+                    </div>
+                    <div class="flex items-end h-full">
+                        <button id="btnDiceRoll" onclick="diceRoll()" class="w-full h-12 btn-blue text-xl font-bold rounded-lg uppercase tracking-wider">🎲 Lắc Xúc Xắc</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="wheelView" class="max-w-6xl mx-auto hidden">
+            <button onclick="showView('home')" class="mb-4 text-gray-400 hover:text-white flex items-center gap-2">← Về sảnh chính</button>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center max-w-4xl mx-auto glass-panel p-8 rounded-xl border border-green-900/50">
+                <div class="flex flex-col items-center gap-3">
+                    <div class="wheel-readout px-4 py-1.5 rounded-lg text-yellow-400 text-lg font-bold" id="wheelReadout">$0.00</div>
+                    <div class="relative flex justify-center w-full">
+                        <div class="wheel-pointer"></div>
+                        <div class="wheel-outer-ring w-80 h-80 rounded-full flex items-center justify-center relative" id="wheelRivetRing">
+                            <div class="w-72 h-72 rounded-full border-4 border-gray-900 overflow-hidden relative shadow-[0_0_30px_rgba(34,197,94,0.3)] bg-gray-800" id="wheelCanvasContainer">
+                                <canvas id="wheelCanvas" width="300" height="300"></canvas>
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-gray-900 rounded-full border-2 border-yellow-600 z-10 shadow-inner flex items-center justify-center text-yellow-400 font-bold text-xs cursor-pointer" onclick="wheelSpin()">QUAY</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-green-400 mb-2 flex items-center gap-2">
+                            <svg viewBox="0 0 100 100" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
+                                <g transform="translate(50,50)">
+                                    <path d="M0 0 L0 -45 A45 45 0 0 1 31.8 -31.8 Z" fill="#facc15"/>
+                                    <path d="M0 0 L31.8 -31.8 A45 45 0 0 1 45 0 Z" fill="#22c55e"/>
+                                    <path d="M0 0 L45 0 A45 45 0 0 1 31.8 31.8 Z" fill="#3b82f6"/>
+                                    <path d="M0 0 L31.8 31.8 A45 45 0 0 1 0 45 Z" fill="#ef4444"/>
+                                    <path d="M0 0 L0 45 A45 45 0 0 1 -31.8 31.8 Z" fill="#facc15"/>
+                                    <path d="M0 0 L-31.8 31.8 A45 45 0 0 1 -45 0 Z" fill="#22c55e"/>
+                                    <path d="M0 0 L-45 0 A45 45 0 0 1 -31.8 -31.8 Z" fill="#3b82f6"/>
+                                    <path d="M0 0 L-31.8 -31.8 A45 45 0 0 1 0 -45 Z" fill="#ef4444"/>
+                                    <circle r="45" fill="none" stroke="#0f172a" stroke-width="3"/>
+                                    <circle r="9" fill="#111827" stroke="#facc15" stroke-width="2.5"/>
+                                </g>
+                                <path d="M50 2 L43 15 L57 15 Z" fill="#facc15"/>
+                            </svg>
+                            Vòng Quay 24 Ô
+                        </h2>
+                        <p class="text-gray-400 text-sm mb-4">Chọn mức bạn đoán vòng quay sẽ dừng lại rồi bấm Quay — đoán đúng ăn theo mức đã chọn, đoán sai mất cược.</p>
+                        <label class="text-xs text-gray-500 block mb-2">Đoán ô sẽ dừng lại:</label>
+                        <div class="grid grid-cols-4 gap-2 mb-1 text-sm text-center" id="wheelPredictButtons">
+                            <button type="button" onclick="selectWheelPrediction(2)" data-mult="2" class="wheel-predict-btn mult2 p-3 rounded-lg font-black text-lg">x2</button>
+                            <button type="button" onclick="selectWheelPrediction(3)" data-mult="3" class="wheel-predict-btn mult3 p-3 rounded-lg font-black text-lg">x3</button>
+                            <button type="button" onclick="selectWheelPrediction(5)" data-mult="5" class="wheel-predict-btn mult5 p-3 rounded-lg font-black text-lg">x5</button>
+                            <button type="button" onclick="selectWheelPrediction(10)" data-mult="10" class="wheel-predict-btn mult10 p-3 rounded-lg font-black text-lg">x10</button>
+                        </div>
+                    </div>
+                    <div id="wheelMessage" class="text-xl font-bold text-center h-8"></div>
+                    <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                        <label class="text-sm text-gray-400 block mb-2">Tiền cược ($)</label>
+                        <div class="flex bg-gray-900 rounded-lg border border-gray-700 p-1">
+                            <input type="number" id="wheelBetAmount" value="20" step="0.01" min="1" onblur="sanitizeBetInput(this)" class="bg-transparent w-full outline-none text-xl font-numbers px-2 text-white">
+                        </div>
+                        <div class="grid grid-cols-5 gap-1 mt-2 mb-4">
+                            <button type="button" onclick="setQuickBet('wheelBetAmount',0.10)" class="quick-bet-btn">10%</button>
+                            <button type="button" onclick="setQuickBet('wheelBetAmount',0.25)" class="quick-bet-btn">25%</button>
+                            <button type="button" onclick="setQuickBet('wheelBetAmount',0.50)" class="quick-bet-btn">50%</button>
+                            <button type="button" onclick="setQuickBet('wheelBetAmount',0.75)" class="quick-bet-btn">75%</button>
+                            <button type="button" onclick="setQuickBet('wheelBetAmount',1)" class="quick-bet-btn quick-bet-max">TẤT CẢ</button>
+                        </div>
+                        <button id="btnWheelSpin" onclick="wheelSpin()" class="w-full h-12 btn-green text-xl font-bold rounded-lg uppercase tracking-wider" disabled>Chọn Mức Đoán Trước</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="raceView" class="max-w-6xl mx-auto hidden">
+            <button onclick="showView('home')" class="mb-4 text-gray-400 hover:text-white flex items-center gap-2">← Về sảnh chính</button>
+            <div class="glass-panel p-6 rounded-xl border border-yellow-900/50">
+                <div class="text-center mb-6">
+                    <h2 class="text-3xl font-bold text-yellow-400 mb-2">🏁 Đua Vịt Siêu Tốc</h2>
+                    <p class="text-gray-400">Chọn một con vịt để đặt cược. Nếu vịt bạn chọn về nhất, bạn nhận x4 số tiền cược — mức thưởng cao nhất trong các trò chơi tại đây.</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="duckSelectors"></div>
+                <div class="mb-8 rounded-xl overflow-hidden border border-gray-700 shadow-lg">
+                    <div class="race-scenery">
+                        <div class="race-sun"></div>
+                        <div class="race-cloud" style="width:44px;height:15px;top:9px;left:14%;"></div>
+                        <div class="race-cloud" style="width:32px;height:11px;top:19px;left:38%;"></div>
+                        <div class="race-cloud" style="width:36px;height:12px;top:12px;left:68%;"></div>
+                    </div>
+                    <div class="bg-gray-900 p-4 relative">
+                        <div class="lily-pad" style="width:20px;height:10px;top:12px;left:22%;"></div>
+                        <div class="lily-pad" style="width:14px;height:7px;top:60px;left:58%;animation-delay:1.2s;"></div>
+                        <div class="lily-pad" style="width:16px;height:8px;top:100px;left:78%;animation-delay:2.1s;"></div>
+                        <div class="absolute right-[20px] top-0 bottom-0 w-2 finish-flag z-0"></div>
+                        <div id="tracksContainer" class="relative z-10 flex flex-col gap-4"></div>
+                    </div>
+                    <div class="reed-strip" id="reedStrip"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-800 p-4 rounded-xl max-w-2xl mx-auto">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm text-gray-400 block">Tiền cược ($)</label>
+                        <div class="flex bg-gray-900 rounded-lg border border-gray-700 p-1">
+                            <input type="number" id="raceBetAmount" value="25" step="0.01" min="1" onblur="sanitizeBetInput(this)" class="bg-transparent w-full outline-none text-xl font-numbers px-2 text-white">
+                        </div>
+                        <div class="grid grid-cols-5 gap-1 mt-2">
+                            <button type="button" onclick="setQuickBet('raceBetAmount',0.10)" class="quick-bet-btn">10%</button>
+                            <button type="button" onclick="setQuickBet('raceBetAmount',0.25)" class="quick-bet-btn">25%</button>
+                            <button type="button" onclick="setQuickBet('raceBetAmount',0.50)" class="quick-bet-btn">50%</button>
+                            <button type="button" onclick="setQuickBet('raceBetAmount',0.75)" class="quick-bet-btn">75%</button>
+                            <button type="button" onclick="setQuickBet('raceBetAmount',1)" class="quick-bet-btn quick-bet-max">TẤT CẢ</button>
+                        </div>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="btnRaceStart" onclick="raceStart()" class="w-full h-12 btn-orange text-xl font-bold rounded-lg uppercase tracking-wider" disabled>Chọn vịt để Bắt Đầu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="minesView" class="max-w-6xl mx-auto hidden">
+            <button onclick="showView('home')" class="mb-4 text-gray-400 hover:text-white flex items-center gap-2">← Về sảnh chính</button>
+            <div class="glass-panel rounded-xl p-6 border border-cyan-900/50 max-w-2xl mx-auto">
+                <div class="text-center mb-4">
+                    <h2 class="text-3xl font-bold text-cyan-300 mb-1">💎 Đào Kim Cương</h2>
+                    <p class="text-gray-400 text-sm">Đặt cược, chọn các ô muốn đào rồi bấm "Mở". Chỉ những ô bạn chọn mới được lật lên — số kim cương tìm được sẽ quyết định phần thưởng.</p>
+                </div>
+                <div id="minesGrid" class="grid grid-cols-6 gap-2 mb-4 max-w-md mx-auto"></div>
+                <div id="minesMessage" class="text-center text-lg font-bold h-8 mb-1"></div>
+                <div class="text-center text-sm text-gray-400 mb-4" id="minesSelectedInfo">Đã chọn: 0 ô</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-800 p-4 rounded-xl">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm text-gray-400">Tiền cược ($)</label>
+                        <div class="flex bg-gray-900 rounded-lg border border-gray-700 p-1">
+                            <input type="number" id="minesBetAmount" value="20" step="0.01" min="1" onblur="sanitizeBetInput(this)" class="bg-transparent w-full outline-none text-xl font-numbers px-2 text-white">
+                        </div>
+                        <div class="grid grid-cols-5 gap-1 mt-2">
+                            <button type="button" onclick="setQuickBet('minesBetAmount',0.10)" class="quick-bet-btn">10%</button>
+                            <button type="button" onclick="setQuickBet('minesBetAmount',0.25)" class="quick-bet-btn">25%</button>
+                            <button type="button" onclick="setQuickBet('minesBetAmount',0.50)" class="quick-bet-btn">50%</button>
+                            <button type="button" onclick="setQuickBet('minesBetAmount',0.75)" class="quick-bet-btn">75%</button>
+                            <button type="button" onclick="setQuickBet('minesBetAmount',1)" class="quick-bet-btn quick-bet-max">TẤT CẢ</button>
+                        </div>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <button id="btnMinesStart" onclick="minesStart()" class="w-full h-12 btn-green text-lg font-bold rounded-lg uppercase tracking-wider">Bắt Đầu Đào</button>
+                        <button id="btnMinesOpen" onclick="minesOpen()" class="w-full h-12 btn-orange text-lg font-bold rounded-lg uppercase tracking-wider hidden">Mở</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="blackjackView" class="max-w-5xl mx-auto hidden">
+            <button onclick="showView('home')" class="mb-4 text-gray-400 hover:text-white flex items-center gap-2">← Về sảnh chính</button>
+            <div class="glass-panel rounded-xl p-6 border border-indigo-900/50 max-w-3xl mx-auto">
+                <div class="text-center mb-4">
+                    <h2 class="text-3xl font-bold text-indigo-300 mb-1">🃏 Xì Dách (Blackjack)</h2>
+                    <p class="text-gray-400 text-sm">Đạt điểm gần 21 nhất mà không quá 21 để thắng nhà cái. Blackjack (Át + lá 10 điểm) trả 3:2.</p>
+                </div>
+                <div class="mb-6 bg-gray-900/40 rounded-xl p-4 border border-gray-800">
+                    <div class="flex items-center justify-center gap-3 mb-3">
+                        <div class="dealer-badge">🤵</div>
+                        <div class="text-center">
+                            <div class="text-xs uppercase tracking-widest text-indigo-300 font-bold">Nhà Cái</div>
+                            <div class="text-sm text-gray-400">Điểm: <span id="bjDealerValue" class="font-numbers font-bold text-red-400">-</span></div>
+                        </div>
+                        <div class="card-shoe" title="Bộ bài">
+                            <div class="shoe-card"></div><div class="shoe-card"></div><div class="shoe-card"></div>
+                            <div class="shoe-box"></div>
+                        </div>
+                    </div>
+                    <div id="bjDealerCards" class="flex gap-1 justify-center flex-wrap min-h-[90px] items-center"></div>
+                </div>
+                <div id="bjPlayerHands" class="grid grid-cols-1 sm:grid-cols-2 gap-4 justify-items-center mb-4 min-h-[130px]"></div>
+                <div id="bjMessage" class="text-center text-lg font-bold h-8 mb-4"></div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6 max-w-xl mx-auto">
+                    <button id="btnBjHit" onclick="bjHit()" class="py-2.5 btn-blue rounded-lg font-bold" disabled>Rút Thêm</button>
+                    <button id="btnBjStand" onclick="bjStand()" class="py-2.5 btn-orange rounded-lg font-bold" disabled>Dừng</button>
+                    <button id="btnBjDouble" onclick="bjDouble()" class="py-2.5 btn-green rounded-lg font-bold" disabled>Nhân Đôi</button>
+                    <button id="btnBjSplit" onclick="bjSplit()" class="py-2.5 rounded-lg font-bold bg-purple-600 hover:bg-purple-500 disabled:opacity-40 disabled:cursor-not-allowed" disabled>Tách Bài</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-800 p-4 rounded-xl max-w-xl mx-auto">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm text-gray-400">Tiền cược ($)</label>
+                        <div class="flex bg-gray-900 rounded-lg border border-gray-700 p-1">
+                            <input type="number" id="bjBetAmount" value="20" step="0.01" min="1" onblur="sanitizeBetInput(this)" class="bg-transparent w-full outline-none text-xl font-numbers px-2 text-white">
+                        </div>
+                        <div class="grid grid-cols-5 gap-1 mt-2">
+                            <button type="button" onclick="setQuickBet('bjBetAmount',0.10)" class="quick-bet-btn">10%</button>
+                            <button type="button" onclick="setQuickBet('bjBetAmount',0.25)" class="quick-bet-btn">25%</button>
+                            <button type="button" onclick="setQuickBet('bjBetAmount',0.50)" class="quick-bet-btn">50%</button>
+                            <button type="button" onclick="setQuickBet('bjBetAmount',0.75)" class="quick-bet-btn">75%</button>
+                            <button type="button" onclick="setQuickBet('bjBetAmount',1)" class="quick-bet-btn quick-bet-max">TẤT CẢ</button>
+                        </div>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="btnBjDeal" onclick="bjDeal()" class="w-full h-12 btn-blue text-xl font-bold rounded-lg uppercase tracking-wider">Chia Bài</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="dailyModal" class="fixed inset-0 modal-overlay z-[100] flex items-center justify-center hidden">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-8 max-w-md w-full text-center relative shadow-2xl">
+            <button onclick="closeDailyModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl font-bold">×</button>
+            <div class="text-6xl mb-4 drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]">🎁</div>
+            <h2 class="text-3xl font-bold mb-2">Điểm Danh Hằng Ngày</h2>
+            <p class="text-gray-400 mb-4 text-sm">Nhận quà miễn phí mỗi ngày 1 lần. Reset chu kỳ sau 7 ngày.</p>
+            <div id="dailyStatusPanel" class="bg-gray-900/60 border border-gray-700 rounded-xl p-3 mb-4 text-sm"></div>
+            <div class="grid grid-cols-4 gap-2 mb-6" id="dailyGrid"></div>
+            <button id="btnClaimDaily" onclick="claimReward()" class="w-full py-3 btn-green font-bold text-lg rounded-xl shadow-lg">Nhận Quà Hôm Nay</button>
+        </div>
+    </div>
+
+    <script>
+        // =====================================================================
+        // DEFAULT STATE / TITLES / SOUND
+        // =====================================================================
+        function defaultUserState() {
+            return {
+                id: null, name: "Khách", balance: 100.00, currentDay: 1, lastClaimed: null, avatarId: 'duck',
+                equippedTitle: null, unlockedTitles: [], soundEnabled: true, crashHistory: [],
+                createdAt: null, emergencySupportLastClaim: null,
+                stats: {
+                    totalWagered: 0, totalWon: 0, totalLost: 0, gamesPlayed: 0, bestCrashMult: 0,
+                    wins: { crash: 0, dice: 0, wheel: 0, race: 0, mines: 0, blackjack: 0 },
+                    played: { crash: 0, dice: 0, wheel: 0, race: 0, mines: 0, blackjack: 0 }
+                },
+                history: []
+            };
+        }
+        window.userState = defaultUserState();
+        let globalPlayersCache = [];
+
+        // ---- New player protection (economy-only perks; never touches game RNG) ----
+        const PROTECTION_DAYS = 3;
+        const PROTECTION_DAILY_BONUS_MULT = 1.5;
+        const EMERGENCY_SUPPORT_AMOUNT = 30;
+        const EMERGENCY_THRESHOLD = 5;
+        function getProtectionDaysLeft() {
+            if (!window.userState.createdAt) return 0;
+            const elapsedDays = Math.floor((Date.now() - window.userState.createdAt) / 86400000);
+            return Math.max(0, PROTECTION_DAYS - elapsedDays);
+        }
+        function isProtected() { return getProtectionDaysLeft() > 0; }
+        function updateProtectionBadge() {
+            const btn = document.getElementById('btnProtectionBadge');
+            const daysLeft = getProtectionDaysLeft();
+            if (btn) {
+                btn.style.opacity = daysLeft > 0 ? '1' : '0.45';
+                btn.title = daysLeft > 0 ? ('Bảo Hộ Người Mới — còn ' + daysLeft + ' ngày') : 'Bảo Hộ Người Mới (đã hết hạn)';
+            }
+            const banner = document.getElementById('homeProtectionBanner');
+            const bannerText = document.getElementById('homeProtectionText');
+            if (banner && bannerText) {
+                if (daysLeft > 0) {
+                    bannerText.innerText = 'Đang được Bảo Hộ Người Mới — còn ' + daysLeft + ' ngày (+50% quà hằng ngày, hỗ trợ khẩn cấp khi hết tiền)';
+                    banner.classList.remove('hidden');
+                } else {
+                    banner.classList.add('hidden');
+                }
+            }
+        }
+        window.toggleProtectionModal = function () {
+            const modal = document.getElementById('protectionModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) { renderProtectionModal(); updateProtectionBadge(); }
+        };
+        function renderProtectionModal() {
+            const daysLeft = getProtectionDaysLeft();
+            const active = daysLeft > 0;
+            const body = document.getElementById('protectionModalBody');
+            const today = new Date().toDateString();
+            const claimedEmergencyToday = window.userState.emergencySupportLastClaim === today;
+            let html = '';
+            if (active) {
+                html += '<div class="text-center mb-4"><div class="text-4xl mb-2">🛡️</div>' +
+                    '<div class="text-xl font-bold text-cyan-300">Đang Được Bảo Hộ Người Mới</div>' +
+                    '<div class="text-sm text-gray-400 mt-1">Còn <span class="font-numbers font-bold text-yellow-300">' + daysLeft + '</span> ngày bảo hộ</div></div>';
+                html += '<div class="space-y-2 text-sm text-gray-300 mb-4">';
+                html += '<div class="flex items-center gap-2 bg-gray-900/50 rounded-lg p-2.5"><span class="text-lg">🎁</span><span>Quà đăng nhập hằng ngày <b class="text-green-400">+50%</b></span></div>';
+                html += '<div class="flex items-center gap-2 bg-gray-900/50 rounded-lg p-2.5"><span class="text-lg">🆘</span><span>Hỗ trợ khẩn cấp ' + fmt(EMERGENCY_SUPPORT_AMOUNT) + '/ngày khi số dư dưới ' + fmt(EMERGENCY_THRESHOLD) + '</span></div>';
+                html += '</div>';
+                html += '<p class="text-[11px] text-gray-500 mb-3">Bảo hộ chỉ hỗ trợ thêm tiền — không thay đổi kết quả ngẫu nhiên của bất kỳ trò chơi nào.</p>';
+                const eligible = window.userState.balance < EMERGENCY_THRESHOLD && !claimedEmergencyToday;
+                let btnLabel = 'Nhận Hỗ Trợ Khẩn Cấp ' + fmt(EMERGENCY_SUPPORT_AMOUNT);
+                if (claimedEmergencyToday) btnLabel = 'Đã Nhận Hỗ Trợ Hôm Nay';
+                else if (window.userState.balance >= EMERGENCY_THRESHOLD) btnLabel = 'Chỉ áp dụng khi số dư dưới ' + fmt(EMERGENCY_THRESHOLD);
+                html += '<button id="btnEmergencySupport" onclick="claimEmergencySupport()" class="w-full py-2.5 rounded-xl font-bold ' + (eligible ? 'btn-green' : 'bg-gray-700 text-gray-400 cursor-not-allowed') + '" ' + (eligible ? '' : 'disabled') + '>' + btnLabel + '</button>';
+            } else {
+                html += '<div class="text-center py-4"><div class="text-4xl mb-2">🏁</div>' +
+                    '<div class="text-lg font-bold text-gray-300">Đã Hết Thời Gian Bảo Hộ</div>' +
+                    '<div class="text-sm text-gray-500 mt-1">Bạn đang chơi ở chế độ bình thường như mọi người chơi khác.</div></div>';
+            }
+            body.innerHTML = html;
+        }
+        window.claimEmergencySupport = function () {
+            const daysLeft = getProtectionDaysLeft();
+            const today = new Date().toDateString();
+            if (daysLeft <= 0) { showCustomModal("Hết Bảo Hộ", "Thời gian bảo hộ người mới đã kết thúc.", "warning"); return; }
+            if (window.userState.emergencySupportLastClaim === today) { showCustomModal("Đã Nhận", "Bạn đã nhận hỗ trợ khẩn cấp hôm nay rồi.", "warning"); return; }
+            if (window.userState.balance >= EMERGENCY_THRESHOLD) { showCustomModal("Chưa Đủ Điều Kiện", "Hỗ trợ khẩn cấp chỉ áp dụng khi số dư dưới " + fmt(EMERGENCY_THRESHOLD) + ".", "warning"); return; }
+            window.userState.balance += EMERGENCY_SUPPORT_AMOUNT;
+            window.userState.emergencySupportLastClaim = today;
+            SoundManager.coin();
+            syncUserData();
+            renderProtectionModal();
+            showCustomModal("Hỗ Trợ Khẩn Cấp", "Bạn đã nhận +" + fmt(EMERGENCY_SUPPORT_AMOUNT) + " hỗ trợ khẩn cấp từ chương trình Bảo Hộ Người Mới!", "success");
+        };
+
+        const TITLES = [
+            { id: 'newbie', name: 'Người Mới', icon: '🌱', check: s => true },
+            { id: 'grinder', name: 'Tay Chơi Chăm Chỉ', icon: '💪', check: s => s.stats.totalWagered >= 500 },
+            { id: 'highroller', name: 'Tay Chơi Lớn', icon: '💵', check: s => s.stats.totalWagered >= 5000 },
+            { id: 'millionaire', name: 'Triệu Phú', icon: '🤑', check: s => s.balance >= 10000 },
+            { id: 'profiteer', name: 'Thần Tài Nhỏ', icon: '📈', check: s => (s.stats.totalWon - s.stats.totalLost) >= 2000 },
+            { id: 'dice_master', name: 'Cao Thủ Xúc Xắc', icon: '🎲', check: s => s.stats.wins.dice >= 15 },
+            { id: 'rocket_king', name: 'Vua Tên Lửa', icon: '🚀', check: s => s.stats.bestCrashMult >= 20 },
+            { id: 'wheel_lucky', name: 'Định Mệnh Vòng Quay', icon: '🍀', check: s => s.stats.wins.wheel >= 15 },
+            { id: 'duck_champion', name: 'Vua Đường Đua', icon: '🏁', check: s => s.stats.wins.race >= 10 },
+            { id: 'diamond_digger', name: 'Thợ Đào Kim Cương', icon: '💎', check: s => s.stats.wins.mines >= 10 },
+            { id: 'blackjack_ace', name: 'Tay Bài Xì Dách', icon: '🃏', check: s => s.stats.wins.blackjack >= 10 },
+            { id: 'legend', name: 'Huyền Thoại Sòng Bạc', icon: '👑', check: s => s.stats.gamesPlayed >= 200 }
+        ];
+        const GAME_NAMES = { crash: 'Tên Lửa', dice: 'Xúc Xắc', wheel: 'Vòng Quay', race: 'Đua Vịt', mines: 'Đào Kim Cương', blackjack: 'Xì Dách' };
+
+        function fmt(n) { const sign = n < 0 ? '-' : ''; return sign + '$' + Math.abs(n).toFixed(2); }
+
+        function checkTitleUnlocks() {
+            const s = window.userState;
+            const newly = [];
+            TITLES.forEach(t => {
+                if (!s.unlockedTitles.includes(t.id) && t.check(s)) { s.unlockedTitles.push(t.id); newly.push(t); }
+            });
+            if (!s.equippedTitle && s.unlockedTitles.length) s.equippedTitle = s.unlockedTitles[s.unlockedTitles.length - 1];
+            if (newly.length) {
+                updateTitleDisplay();
+                const names = newly.map(t => t.icon + ' ' + t.name).join(', ');
+                setTimeout(() => showCustomModal("Mở Khóa Danh Hiệu!", "Bạn đã đạt được danh hiệu: " + names, "success"), 350);
+            }
+            return newly;
+        }
+        function recordWager(amount) { window.userState.stats.totalWagered += amount; }
+        function recordResult(game, delta, note) {
+            const s = window.userState;
+            s.stats.gamesPlayed++;
+            s.stats.played[game] = (s.stats.played[game] || 0) + 1;
+            if (delta > 0) { s.stats.totalWon += delta; s.stats.wins[game] = (s.stats.wins[game] || 0) + 1; }
+            else if (delta < 0) { s.stats.totalLost += Math.abs(delta); }
+            s.history.unshift({ ts: Date.now(), game, delta, note });
+            if (s.history.length > 40) s.history.length = 40;
+            checkTitleUnlocks();
+        }
+
+        const SoundManager = (() => {
+            let ctx = null;
+            function ensureCtx() {
+                if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; } }
+                if (ctx && ctx.state === 'suspended') { try { ctx.resume(); } catch (e) {} }
+                return ctx;
+            }
+            function tone(freq, dur, type, vol, delay) {
+                if (!window.userState.soundEnabled) return;
+                const c = ensureCtx(); if (!c) return;
+                type = type || 'sine'; vol = vol === undefined ? 0.15 : vol; delay = delay || 0;
+                try {
+                    const t0 = c.currentTime + delay;
+                    const osc = c.createOscillator(); const gain = c.createGain();
+                    osc.type = type; osc.frequency.setValueAtTime(freq, t0);
+                    gain.gain.setValueAtTime(0, t0);
+                    gain.gain.linearRampToValueAtTime(vol, t0 + 0.01);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+                    osc.connect(gain); gain.connect(c.destination);
+                    osc.start(t0); osc.stop(t0 + dur + 0.02);
+                } catch (e) {}
+            }
+            return {
+                click() { tone(440, 0.05, 'square', 0.08); },
+                dice() { [0, 0.08, 0.16].forEach((d, i) => tone(300 + i * 60, 0.07, 'triangle', 0.12, d)); },
+                cardFlip() { tone(700, 0.05, 'square', 0.08); },
+                chip() { tone(900, 0.04, 'sine', 0.08); },
+                spin() { tone(500, 0.05, 'square', 0.08); },
+                win() { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.18, 'triangle', 0.15, i * 0.09)); },
+                bigWin() { [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.22, 'triangle', 0.18, i * 0.08)); },
+                lose() { [300, 220, 160].forEach((f, i) => tone(f, 0.22, 'sawtooth', 0.12, i * 0.09)); },
+                coin() { tone(1200, 0.06, 'sine', 0.1); }
+            };
+        })();
+        window.toggleSound = function () {
+            window.userState.soundEnabled = !window.userState.soundEnabled;
+            updateSoundButton(); syncUserData();
+            if (window.userState.soundEnabled) SoundManager.click();
+        };
+        function updateSoundButton() {
+            const btn = document.getElementById('btnSoundToggle');
+            btn.innerText = window.userState.soundEnabled ? '🔊' : '🔇';
+        }
+
+        // ---- Storage with retry + silent fallback (no visible warnings) ----
+        async function storageSetRetry(key, value, shared, retries) {
+            retries = retries === undefined ? 3 : retries;
+            for (let i = 0; i <= retries; i++) {
+                try { return await window.storage.set(key, value, shared); }
+                catch (e) {
+                    if (i === retries) return null;
+                    await new Promise(res => setTimeout(res, 350 * (i + 1)));
+                }
+            }
+        }
+        async function storageGetSafe(key, shared) {
+            try { return await window.storage.get(key, shared); } catch (e) { return null; }
+        }
+
+        window.showCustomModal = function (title, text, type) {
+            document.getElementById('customModalTitle').innerText = title;
+            document.getElementById('customModalText').innerText = text;
+            const iconEl = document.getElementById('customModalIcon');
+            if (type === 'error') iconEl.innerText = '⚠️';
+            else if (type === 'success') iconEl.innerText = '✅';
+            else iconEl.innerText = 'ℹ️';
+            document.getElementById('customModal').classList.remove('hidden');
+        };
+        window.closeCustomModal = function () { document.getElementById('customModal').classList.add('hidden'); };
+
+        // ---- Avatar picker ----
+        const AVATAR_PRESETS = [
+            { id: 'duck', emoji: '🦆', grad: ['#22d3ee', '#0891b2'] },
+            { id: 'dice', emoji: '🎲', grad: ['#60a5fa', '#2563eb'] },
+            { id: 'rocket', emoji: '🚀', grad: ['#f87171', '#b91c1c'] },
+            { id: 'diamond', emoji: '💎', grad: ['#38bdf8', '#1d4ed8'] },
+            { id: 'crown', emoji: '👑', grad: ['#facc15', '#ca8a04'] },
+            { id: 'fire', emoji: '🔥', grad: ['#fb923c', '#c2410c'] },
+            { id: 'star', emoji: '⭐', grad: ['#a78bfa', '#6d28d9'] },
+            { id: 'skull', emoji: '💀', grad: ['#94a3b8', '#334155'] },
+            { id: 'clover', emoji: '🍀', grad: ['#4ade80', '#15803d'] },
+            { id: 'joker', emoji: '🃏', grad: ['#f472b6', '#be185d'] }
+        ];
+        function updateAvatarDisplay() {
+            const preset = AVATAR_PRESETS.find(p => p.id === window.userState.avatarId) || AVATAR_PRESETS[0];
+            const box = document.getElementById('avatarBox');
+            box.style.background = 'linear-gradient(135deg, ' + preset.grad[0] + ', ' + preset.grad[1] + ')';
+            box.innerHTML = '<span style="font-size:20px;line-height:1;">' + preset.emoji + '</span>';
+        }
+        window.openAvatarModal = function () {
+            const grid = document.getElementById('avatarGrid');
+            grid.innerHTML = AVATAR_PRESETS.map(p =>
+                '<button onclick="selectAvatar(\'' + p.id + '\')" class="aspect-square rounded-xl flex items-center justify-center text-2xl border-2 ' +
+                (p.id === window.userState.avatarId ? 'border-white' : 'border-transparent') +
+                '" style="background:linear-gradient(135deg, ' + p.grad[0] + ', ' + p.grad[1] + ')">' + p.emoji + '</button>'
+            ).join('');
+            document.getElementById('avatarModal').classList.remove('hidden');
+        };
+        window.closeAvatarModal = function () { document.getElementById('avatarModal').classList.add('hidden'); };
+        window.selectAvatar = function (id) {
+            window.userState.avatarId = id;
+            updateAvatarDisplay();
+            syncUserData();
+            closeAvatarModal();
+        };
+
+        // ---- Titles modal ----
+        window.toggleTitlesModal = function () {
+            const modal = document.getElementById('titlesModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) renderTitlesModal();
+        };
+        function renderTitlesModal() {
+            const list = document.getElementById('titlesList');
+            list.innerHTML = TITLES.map(t => {
+                const unlocked = window.userState.unlockedTitles.includes(t.id);
+                const equipped = window.userState.equippedTitle === t.id;
+                let html = '<div class="flex justify-between items-center p-3 rounded-xl border ' +
+                    (unlocked ? 'border-gray-700 bg-gray-900/60' : 'border-gray-800 bg-gray-900/30 opacity-50') + '">' +
+                    '<div class="flex items-center gap-2"><span class="text-xl">' + t.icon + '</span><span class="font-bold text-sm">' + t.name + '</span>' +
+                    (!unlocked ? '<span class="text-[10px] text-gray-500 ml-1">🔒 Chưa mở khóa</span>' : '') + '</div>';
+                if (unlocked) {
+                    html += '<button onclick="equipTitle(\'' + t.id + '\')" class="text-xs px-3 py-1.5 rounded-lg font-bold ' +
+                        (equipped ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-200') + '">' +
+                        (equipped ? 'Đang Dùng' : 'Trang Bị') + '</button>';
+                }
+                html += '</div>';
+                return html;
+            }).join('');
+        }
+        window.equipTitle = function (id) {
+            window.userState.equippedTitle = id;
+            updateTitleDisplay();
+            renderTitlesModal();
+            syncUserData();
+        };
+        function updateTitleDisplay() {
+            const t = TITLES.find(x => x.id === window.userState.equippedTitle);
+            const el = document.getElementById('displayTitleChip');
+            if (t) { el.innerText = t.icon + ' ' + t.name; el.classList.remove('hidden'); }
+            else { el.classList.add('hidden'); }
+        }
+
+        // ---- Transaction history modal ----
+        window.toggleHistoryModal = function () {
+            const modal = document.getElementById('historyModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) renderHistoryModal();
+        };
+        function renderHistoryModal() {
+            const list = document.getElementById('historyList');
+            const h = window.userState.history || [];
+            if (h.length === 0) { list.innerHTML = '<div class="text-gray-500 text-sm text-center py-6">Chưa có giao dịch nào.</div>'; return; }
+            list.innerHTML = h.map(item => {
+                const d = new Date(item.ts);
+                const timeStr = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + d.toLocaleDateString('vi-VN');
+                const positive = item.delta >= 0;
+                return '<div class="flex justify-between items-center p-2.5 rounded-lg bg-gray-900/50 border border-gray-800 text-sm">' +
+                    '<div><div class="font-bold text-gray-200">' + (GAME_NAMES[item.game] || item.game) + '</div><div class="text-[11px] text-gray-500">' + timeStr + (item.note ? ' • ' + item.note : '') + '</div></div>' +
+                    '<span class="font-numbers font-bold ' + (positive ? 'text-green-400' : 'text-red-400') + '">' + (positive ? '+' : '') + fmt(item.delta) + '</span>' +
+                    '</div>';
+            }).join('');
+        }
+
+        // ---- Crash multiplier history modal ----
+        window.toggleCrashHistoryModal = function () {
+            const modal = document.getElementById('crashHistoryModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) renderCrashHistory();
+        };
+        function renderCrashHistory() {
+            const list = document.getElementById('crashHistoryList');
+            const hist = window.userState.crashHistory || [];
+            if (hist.length === 0) { list.innerHTML = '<div class="text-gray-500 text-sm text-center py-4">Chưa có lượt chơi nào.</div>'; return; }
+            list.innerHTML = hist.map(m => {
+                const cls = m < 2 ? 'bg-red-500/20 text-red-400 border-red-500/40' : (m < 10 ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' : 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40');
+                return '<span class="inline-block px-2 py-1 rounded border text-xs font-numbers font-bold m-0.5 ' + cls + '">' + m.toFixed(2) + 'x</span>';
+            }).join('');
+        }
+
+        async function loadProfile(id) {
+            const r = await storageGetSafe('profile:' + id, false);
+            try { return r ? JSON.parse(r.value) : null; } catch (e) { return null; }
+        }
+        async function saveProfile(state) { return await storageSetRetry('profile:' + state.id, JSON.stringify(state), false); }
+        async function saveLeaderboardEntry() {
+            let map = {};
+            const r = await storageGetSafe('leaderboard-data', true);
+            if (r) { try { map = JSON.parse(r.value); } catch (e) { map = {}; } }
+            const t = TITLES.find(x => x.id === window.userState.equippedTitle);
+            map[window.userState.id] = {
+                id: window.userState.id, name: window.userState.name, balance: window.userState.balance,
+                titleIcon: t ? t.icon : '', titleName: t ? t.name : '', updatedAt: Date.now()
+            };
+            await storageSetRetry('leaderboard-data', JSON.stringify(map), true);
+        }
+        async function loadLeaderboard() {
+            const r = await storageGetSafe('leaderboard-data', true);
+            if (!r) return [];
+            try { return Object.values(JSON.parse(r.value)); } catch (e) { return []; }
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            buildDieFaces(document.getElementById('die1Cube'));
+            buildDieFaces(document.getElementById('die2Cube'));
+            document.getElementById('btnLogin').addEventListener('click', loginUser);
+            document.getElementById('usernameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') loginUser(); });
+
+            const pointer = await storageGetSafe('last-profile-id', false);
+            if (pointer && pointer.value) {
+                const existing = await loadProfile(pointer.value);
+                if (existing) {
+                    window.userState = Object.assign(defaultUserState(), existing);
+                    initUI();
+                    refreshLeaderboard();
+                    document.getElementById('authModal').classList.add('hidden');
+                }
+            }
+        });
+
+        window.loginUser = async function () {
+            const nameInput = document.getElementById('usernameInput').value.trim();
+            if (!nameInput) { document.getElementById('authError').innerText = "Vui lòng nhập biệt danh của bạn!"; return; }
+            document.getElementById('authStatus').classList.remove('hidden');
+            document.getElementById('btnLogin').disabled = true;
+            const id = "player-" + nameInput.toLowerCase().replace(/\s+/g, '-');
+            const existing = await loadProfile(id);
+            if (existing) {
+                window.userState = Object.assign(defaultUserState(), existing);
+                window.userState.id = id;
+            } else {
+                window.userState = defaultUserState();
+                window.userState.id = id;
+                window.userState.name = nameInput;
+                window.userState.createdAt = Date.now();
+                await saveProfile(window.userState);
+                await saveLeaderboardEntry();
+            }
+            await storageSetRetry('last-profile-id', id, false);
+            initUI();
+            refreshLeaderboard();
+            document.getElementById('authModal').classList.add('hidden');
+        };
+
+        let syncTimer = null;
+        window.syncUserData = function () {
+            updateBalanceUI();
+            if (syncTimer) clearTimeout(syncTimer);
+            syncTimer = setTimeout(async () => {
+                await saveProfile(window.userState);
+                await saveLeaderboardEntry();
+            }, 400);
+        };
+
+        function initUI() {
+            document.getElementById('displayUsername').innerText = window.userState.name;
+            updateAvatarDisplay();
+            updateTitleDisplay();
+            updateSoundButton();
+            updateProtectionBadge();
+            updateBalanceUI();
+            setupDailyGrid();
+            document.getElementById('homeView').classList.remove('hidden');
+            const today = new Date().toDateString();
+            if (window.userState.lastClaimed !== today) setTimeout(showDailyModal, 800);
+            drawWheel();
+            resetWheelSelection();
+            setupDuckRace();
+            setupMinesGrid();
+            bjReset();
+            bjRender();
+        }
+
+        window.updateBalanceUI = function () {
+            const el = document.getElementById('userBalance');
+            el.innerText = '$' + window.userState.balance.toFixed(2);
+            if (window.userState.balance < 0) { el.classList.remove('money-positive'); el.classList.add('money-negative'); }
+            else { el.classList.remove('money-negative'); el.classList.add('money-positive'); }
+        };
+
+        const MIN_BET = 1;
+        window.setQuickBet = function (inputId, percent) {
+            const bal = window.userState.balance;
+            if (bal < MIN_BET) {
+                showCustomModal("Số Dư Quá Thấp", "Số dư hiện tại thấp hơn mức cược tối thiểu (" + fmt(MIN_BET) + "). Hãy nhận quà đăng nhập hằng ngày" + (isProtected() ? " hoặc Hỗ Trợ Khẩn Cấp trong mục Bảo Hộ Người Mới 🛡️" : "") + " để tiếp tục chơi.", "warning");
+                return;
+            }
+            let amt = Math.round(bal * percent * 100) / 100;
+            if (amt < MIN_BET) amt = MIN_BET;
+            if (amt > bal) amt = Math.floor(bal * 100) / 100;
+            document.getElementById(inputId).value = amt.toFixed(2);
+            SoundManager.click();
+        };
+        window.sanitizeBetInput = function (el) {
+            let v = parseFloat(el.value);
+            if (isNaN(v) || v < 0) v = MIN_BET;
+            v = Math.round(v * 100) / 100;
+            if (v < MIN_BET) v = MIN_BET;
+            const bal = window.userState.balance;
+            if (bal > 0 && v > bal) v = bal;
+            el.value = v.toFixed(2);
+        };
+
+        // ---- Leaderboard (shared storage, real players only) ----
+        const RANK_TITLES = {
+            1: { label: 'Thần Tài', medal: '👑', chip: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50', tag: 'bg-yellow-500 text-gray-950', row: 'border-yellow-500/50 shadow-[0_0_10px_rgba(250,204,21,0.2)]' },
+            2: { label: 'Á Quân Bạc', medal: '🥈', chip: 'bg-slate-300/20 text-slate-200 border-slate-300/50', tag: 'bg-slate-300 text-gray-950', row: 'border-slate-300/40 shadow-[0_0_10px_rgba(203,213,225,0.15)]' },
+            3: { label: 'Hạng Ba Đồng', medal: '🥉', chip: 'bg-orange-400/20 text-orange-300 border-orange-400/50', tag: 'bg-orange-400 text-gray-950', row: 'border-orange-400/40 shadow-[0_0_10px_rgba(251,146,60,0.15)]' }
+        };
+        async function refreshLeaderboard() {
+            if (!window.userState.id) { renderLeaderboardUI([]); return; }
+            const real = await loadLeaderboard();
+            const byId = {};
+            real.forEach(p => { if (p && p.id) byId[p.id] = p; });
+            const t = TITLES.find(x => x.id === window.userState.equippedTitle);
+            byId[window.userState.id] = {
+                id: window.userState.id, name: window.userState.name, balance: window.userState.balance,
+                titleIcon: t ? t.icon : '', titleName: t ? t.name : ''
+            };
+            const players = Object.values(byId).sort((a, b) => b.balance - a.balance);
+            globalPlayersCache = players;
+            renderLeaderboardUI(players);
+        }
+        function renderLeaderboardUI(players) {
+            const list = document.getElementById('leaderboardModalList');
+            if (players.length === 0) { list.innerHTML = '<div class="text-center text-gray-500 py-6 text-sm">Chưa có người chơi nào — hãy là người đầu tiên!</div>'; return; }
+            list.innerHTML = '';
+            players.forEach((player, index) => {
+                const rank = index + 1;
+                const titleInfo = RANK_TITLES[rank];
+                const isMe = player.id === window.userState.id;
+                const amtColor = player.balance >= 0 ? 'text-green-400' : 'text-red-400';
+                let rankBadge = '<span class="font-numbers font-bold text-gray-400 w-8 text-center inline-block">#' + rank + '</span>';
+                if (titleInfo) rankBadge = '<span class="' + titleInfo.chip + ' border px-2 py-0.5 rounded text-xs font-bold flex items-center gap-1">' + titleInfo.medal + ' #' + rank + '</span>';
+                const equippedBadge = player.titleName ? ('<span class="text-[10px] text-yellow-400/90 ml-1">' + (player.titleIcon || '') + ' ' + player.titleName + '</span>') : '';
+                list.innerHTML +=
+                    '<div class="flex justify-between items-center p-3 rounded-xl bg-gray-900/60 border ' + (titleInfo ? titleInfo.row : 'border-gray-700') + ' ' + (isMe ? 'ring-1 ring-purple-500 bg-purple-900/25' : '') + '">' +
+                    '<div class="flex items-center gap-3 truncate pr-2">' + rankBadge +
+                    '<div class="truncate"><div class="font-bold text-sm truncate text-gray-200 flex items-center gap-1 flex-wrap">' +
+                    player.name + (isMe ? ' <span class="text-purple-400">(Bạn)</span>' : '') +
+                    (titleInfo ? '<span class="text-[10px] ' + titleInfo.tag + ' px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wider ml-1">' + titleInfo.label + '</span>' : '') +
+                    equippedBadge + '</div></div></div>' +
+                    '<span class="font-numbers text-sm font-bold ' + amtColor + '">$' + player.balance.toFixed(2) + '</span>' +
+                    '</div>';
+            });
+        }
+        window.toggleLeaderboardModal = function () {
+            const modal = document.getElementById('leaderboardModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) refreshLeaderboard();
+        };
+
+        window.showView = function (viewId) {
+            ['home', 'crash', 'dice', 'wheel', 'race', 'mines', 'blackjack'].forEach(v => document.getElementById(v + 'View').classList.add('hidden'));
+            document.getElementById(viewId + 'View').classList.remove('hidden');
+            if (viewId === 'crash') initCrashCanvas();
+            if (viewId === 'wheel') document.getElementById('wheelMessage').innerText = "";
+        };
+
+        window.validateBet = function (amount) {
+            if (isNaN(amount) || amount < MIN_BET) { showCustomModal("Lỗi Cược", "Số tiền cược tối thiểu là " + fmt(MIN_BET) + ".", "error"); return false; }
+            if (amount > window.userState.balance) {
+                if (window.userState.balance < MIN_BET) {
+                    showCustomModal("Hết Số Dư", "Bạn đã hết tiền để đặt cược. Hãy nhận quà đăng nhập hằng ngày 🎁" + (isProtected() ? " hoặc dùng Hỗ Trợ Khẩn Cấp trong mục Bảo Hộ Người Mới 🛡️" : "") + " để tiếp tục chơi.", "warning");
+                } else {
+                    showCustomModal("Không Đủ Số Dư", "Số dư của bạn không đủ để đặt cược này. Hãy giảm mức cược hoặc dùng các nút % bên dưới.", "warning");
+                }
+                return false;
+            }
+            return true;
+        };
+
+        const rewards = [50, 75, 100, 150, 200, 300, 500];
+        let dailyCountdownTimer = null;
+        window.showDailyModal = () => { document.getElementById('dailyModal').classList.remove('hidden'); updateDailyStatusPanel(); };
+        window.closeDailyModal = () => {
+            document.getElementById('dailyModal').classList.add('hidden');
+            if (dailyCountdownTimer) { clearInterval(dailyCountdownTimer); dailyCountdownTimer = null; }
+        };
+        function updateDailyStatusPanel() {
+            const today = new Date().toDateString();
+            const claimedToday = window.userState.lastClaimed === today;
+            const rewardToday = rewards[window.userState.currentDay - 1];
+            const protectedNow = isProtected();
+            const displayReward = protectedNow ? Math.round(rewardToday * PROTECTION_DAILY_BONUS_MULT) : rewardToday;
+            const panel = document.getElementById('dailyStatusPanel');
+            if (!panel) return;
+            if (claimedToday) {
+                panel.innerHTML = '<div class="text-green-400 font-bold mb-1">✓ Đã nhận ' + fmt(displayReward) + ' hôm nay</div>' +
+                    '<div class="text-xs text-gray-400">Quà tiếp theo sau: <span id="dailyCountdownText" class="font-numbers text-yellow-300 font-bold">--:--:--</span></div>';
+            } else {
+                panel.innerHTML = '<div class="text-yellow-300 font-bold">Quà hôm nay: ' + fmt(displayReward) + (protectedNow ? ' <span class="text-cyan-300">(gồm +50% Bảo Hộ Người Mới)</span>' : '') + '</div>' +
+                    '<div class="text-xs text-gray-500 mt-1">Nhận ngay bên dưới!</div>';
+            }
+            if (dailyCountdownTimer) { clearInterval(dailyCountdownTimer); dailyCountdownTimer = null; }
+            if (claimedToday) {
+                const tick = () => {
+                    const now = new Date();
+                    const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+                    let diff = Math.max(0, nextMidnight - now);
+                    const h = Math.floor(diff / 3600000); diff -= h * 3600000;
+                    const m = Math.floor(diff / 60000); diff -= m * 60000;
+                    const s = Math.floor(diff / 1000);
+                    const el = document.getElementById('dailyCountdownText');
+                    if (el) el.innerText = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+                };
+                tick();
+                dailyCountdownTimer = setInterval(tick, 1000);
+            }
+        }
+        window.setupDailyGrid = function () {
+            const grid = document.getElementById('dailyGrid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 7; i++) {
+                const dayNum = i + 1;
+                const isClaimed = dayNum < window.userState.currentDay;
+                const isToday = dayNum === window.userState.currentDay;
+                let bgClass = "bg-gray-700 border-gray-600";
+                if (isClaimed) bgClass = "bg-green-900/40 border-green-500 opacity-60";
+                if (isToday) bgClass = "bg-purple-900/80 border-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.5)]";
+                if (i === 6) bgClass += " col-span-2";
+                grid.innerHTML +=
+                    '<div class="border rounded-lg p-2 flex flex-col items-center justify-center ' + bgClass + '">' +
+                    '<span class="text-[10px] text-gray-300">Ngày ' + dayNum + '</span>' +
+                    '<span class="font-bold text-yellow-400 text-sm">$' + rewards[i] + '</span>' +
+                    (isClaimed ? '<span class="mt-1 text-green-400 text-xs">✓</span>' : '') + '</div>';
+            }
+            const btn = document.getElementById('btnClaimDaily');
+            const today = new Date().toDateString();
+            if (window.userState.lastClaimed === today) { btn.innerText = "Đã Nhận Hôm Nay"; btn.disabled = true; btn.classList.add('opacity-50', 'cursor-not-allowed'); }
+            else { btn.innerText = "Nhận Quà Hôm Nay"; btn.disabled = false; btn.classList.remove('opacity-50', 'cursor-not-allowed'); }
+        };
+        window.claimReward = function () {
+            const today = new Date().toDateString();
+            if (window.userState.lastClaimed === today) { showCustomModal("Đã Nhận", "Bạn đã điểm danh hôm nay rồi. Hãy quay lại vào ngày mai!", "warning"); return; }
+            let reward = rewards[window.userState.currentDay - 1];
+            const protectedNow = isProtected();
+            if (protectedNow) reward = Math.round(reward * PROTECTION_DAILY_BONUS_MULT);
+            window.userState.balance += reward;
+            window.userState.lastClaimed = today;
+            window.userState.currentDay++;
+            if (window.userState.currentDay > 7) window.userState.currentDay = 1;
+            SoundManager.coin();
+            syncUserData();
+            setupDailyGrid();
+            updateDailyStatusPanel();
+            showCustomModal("Thành Công", "Bạn đã nhận được +" + fmt(reward) + " tiền viện trợ" + (protectedNow ? " (đã gồm thưởng Bảo Hộ Người Mới +50%)" : "") + "!", "success");
+        };
+
+        // =====================================================================
+        // GAME 1: TÊN LỬA (CRASH) — capped at 100x
+        // =====================================================================
+        let crashState = { status: 'IDLE', mult: 1.0, crashPoint: 1.0, bet: 0, cashedOut: false, startTime: null, animId: null, points: [] };
+        let crashCtx, crashCanvas;
+        window.initCrashCanvas = function () {
+            crashCanvas = document.getElementById('crashCanvas');
+            const container = document.getElementById('crashContainer');
+            crashCanvas.width = container.clientWidth; crashCanvas.height = container.clientHeight;
+            crashCtx = crashCanvas.getContext('2d');
+            drawCrashStatic();
+        };
+        function drawCrashStatic() {
+            if (!crashCtx) return;
+            crashCtx.clearRect(0, 0, crashCanvas.width, crashCanvas.height);
+            crashCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)'; crashCtx.lineWidth = 1;
+            for (let i = 0; i < crashCanvas.width; i += 40) { crashCtx.beginPath(); crashCtx.moveTo(i, 0); crashCtx.lineTo(i, crashCanvas.height); crashCtx.stroke(); }
+            for (let i = 0; i < crashCanvas.height; i += 40) { crashCtx.beginPath(); crashCtx.moveTo(0, i); crashCtx.lineTo(crashCanvas.width, i); crashCtx.stroke(); }
+        }
+        window.crashPlaceBet = function () {
+            if (crashState.status === 'RUNNING') return;
+            let betAmount = parseFloat(document.getElementById('crashBetAmount').value);
+            if (!validateBet(betAmount)) return;
+            window.userState.balance -= betAmount; recordWager(betAmount); syncUserData();
+            SoundManager.chip();
+            crashState.bet = betAmount; crashState.cashedOut = false;
+            document.getElementById('btnCrashBet').classList.add('hidden');
+            document.getElementById('btnCrashCashOut').classList.remove('hidden');
+            document.getElementById('crashMessage').classList.add('hidden');
+            crashStartGame();
+        };
+        function crashStartGame() {
+            crashState.status = 'RUNNING';
+            const e = 2 ** 32;
+            const h = crypto.getRandomValues(new Uint32Array(1))[0];
+            if (h % 25 === 0) crashState.crashPoint = 1.00;
+            else crashState.crashPoint = Math.min(100, Math.max(1.00, (100 * e - h) / (e - h) / 100));
+            crashState.mult = 1.00; crashState.points = []; crashState.startTime = performance.now();
+            document.getElementById('crashMultiplierText').style.color = '#ffffff';
+            cancelAnimationFrame(crashState.animId);
+            crashLoop();
+        }
+        function crashLoop(time) {
+            if (crashState.status !== 'RUNNING') return;
+            if (!crashState.startTime) crashState.startTime = time;
+            const elapsedMs = time - crashState.startTime;
+            crashState.mult = Math.min(crashState.crashPoint, Math.pow(Math.E, 0.00008 * elapsedMs));
+            if (crashState.mult >= crashState.crashPoint) { crashState.mult = crashState.crashPoint; crashDoCrash(); }
+            else {
+                document.getElementById('crashMultiplierText').innerText = crashState.mult.toFixed(2) + 'x';
+                if (!crashState.cashedOut) document.getElementById('crashCashOutAmount').innerText = '$' + (crashState.bet * crashState.mult).toFixed(2);
+                drawCrashGraph(elapsedMs, crashState.mult);
+                crashState.animId = requestAnimationFrame(crashLoop);
+            }
+        }
+        function showCrashOverlayMessage(text, variant) {
+            const msg = document.getElementById('crashMessage');
+            const base = 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 font-bold z-20 whitespace-nowrap bg-black/85 px-6 py-3 rounded-xl text-center';
+            msg.className = base + ' ' + (variant === 'success' ? 'text-2xl md:text-3xl text-green-400' : 'text-3xl md:text-4xl text-red-500');
+            msg.innerText = text;
+            msg.classList.remove('hidden');
+        }
+        window.crashCashOut = function () {
+            if (crashState.status !== 'RUNNING' || crashState.cashedOut) return;
+            crashState.cashedOut = true;
+            const wonAmount = crashState.bet * crashState.mult;
+            window.userState.balance += wonAmount;
+            window.userState.stats.bestCrashMult = Math.max(window.userState.stats.bestCrashMult || 0, crashState.mult);
+            recordResult('crash', wonAmount - crashState.bet, 'Rút tại ' + crashState.mult.toFixed(2) + 'x');
+            syncUserData();
+            SoundManager.coin();
+            if (crashState.mult >= 5) SoundManager.bigWin(); else SoundManager.win();
+            document.getElementById('btnCrashCashOut').classList.add('hidden');
+            document.getElementById('btnCrashBet').classList.remove('hidden');
+            document.getElementById('crashMultiplierText').style.color = '#4ade80';
+            showCrashOverlayMessage('✅ CASHOUT THÀNH CÔNG! +' + fmt(wonAmount - crashState.bet) + ' (nhận về ' + fmt(wonAmount) + ' tại ' + crashState.mult.toFixed(2) + 'x)', 'success');
+        };
+        function crashDoCrash() {
+            crashState.status = 'CRASHED';
+            document.getElementById('crashMultiplierText').innerText = crashState.mult.toFixed(2) + 'x';
+            document.getElementById('btnCrashCashOut').classList.add('hidden');
+            document.getElementById('btnCrashBet').classList.remove('hidden');
+            window.userState.crashHistory = window.userState.crashHistory || [];
+            window.userState.crashHistory.unshift(parseFloat(crashState.mult.toFixed(2)));
+            if (window.userState.crashHistory.length > 30) window.userState.crashHistory.length = 30;
+            if (!crashState.cashedOut) {
+                document.getElementById('crashMultiplierText').style.color = '#ef4444';
+                showCrashOverlayMessage('💥 THUA CƯỢC! Tên lửa nổ tại ' + crashState.mult.toFixed(2) + 'x (-' + fmt(crashState.bet) + ')', 'loss');
+                recordResult('crash', -crashState.bet, 'Nổ tại ' + crashState.mult.toFixed(2) + 'x');
+                SoundManager.lose();
+            }
+            syncUserData();
+        }
+        function drawRocket(ctx, x, y, angle) {
+            ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+            ctx.shadowColor = 'rgba(250, 204, 21, 0.9)'; ctx.shadowBlur = 10;
+            ctx.beginPath(); ctx.moveTo(-14, 0); ctx.lineTo(-24, -5); ctx.lineTo(-30, 0); ctx.lineTo(-24, 5); ctx.closePath();
+            const flameGrad = ctx.createLinearGradient(-30, 0, -14, 0);
+            flameGrad.addColorStop(0, 'rgba(250,204,21,0)'); flameGrad.addColorStop(1, '#f97316');
+            ctx.fillStyle = flameGrad; ctx.fill();
+            ctx.shadowBlur = 4;
+            ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(-16, -8); ctx.lineTo(-6, -2); ctx.closePath(); ctx.fillStyle = '#dc2626'; ctx.fill();
+            ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(-16, 8); ctx.lineTo(-6, 2); ctx.closePath(); ctx.fill();
+            ctx.shadowColor = 'rgba(248, 250, 252, 0.7)'; ctx.shadowBlur = 8;
+            ctx.beginPath(); ctx.moveTo(18, 0); ctx.quadraticCurveTo(6, -7, -12, -5); ctx.lineTo(-12, 5); ctx.quadraticCurveTo(6, 7, 18, 0); ctx.closePath();
+            ctx.fillStyle = '#f1f5f9'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = '#94a3b8'; ctx.stroke();
+            ctx.shadowBlur = 0;
+            ctx.beginPath(); ctx.arc(6, 0, 3, 0, Math.PI * 2); ctx.fillStyle = '#38bdf8'; ctx.fill();
+            ctx.restore();
+        }
+        function drawCrashGraph(elapsedMs, mult) {
+            drawCrashStatic();
+            const pL = 20, pB = 20, w = crashCanvas.width - 40, h = crashCanvas.height - 40;
+            let maxX = Math.max(10000, elapsedMs + 1000);
+            let maxY = Math.max(2.0, mult + 0.5);
+            const cX = pL + (elapsedMs / maxX) * w;
+            const cY = crashCanvas.height - pB - ((mult - 1) / (maxY - 1)) * h;
+            crashState.points.push({ x: cX, y: cY });
+            crashCtx.beginPath(); crashCtx.moveTo(pL, crashCanvas.height - pB);
+            for (let i = 0; i < crashState.points.length; i++) crashCtx.lineTo(crashState.points[i].x, crashState.points[i].y);
+            crashCtx.lineTo(cX, crashCanvas.height - pB);
+            const grad = crashCtx.createLinearGradient(0, crashCanvas.height, 0, 0);
+            grad.addColorStop(0, 'rgba(239, 68, 68, 0.4)'); grad.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
+            crashCtx.fillStyle = grad; crashCtx.fill();
+            crashCtx.beginPath(); crashCtx.moveTo(pL, crashCanvas.height - pB);
+            for (let i = 0; i < crashState.points.length; i++) crashCtx.lineTo(crashState.points[i].x, crashState.points[i].y);
+            crashCtx.strokeStyle = '#ef4444'; crashCtx.lineWidth = 3; crashCtx.stroke();
+            let angle = -Math.PI / 12;
+            if (crashState.points.length > 1) {
+                const p0 = crashState.points[crashState.points.length - 2];
+                const p1 = crashState.points[crashState.points.length - 1];
+                angle = Math.atan2(p1.y - p0.y, p1.x - p0.x);
+            }
+            drawRocket(crashCtx, cX, cY, angle);
+        }
+
+        // =====================================================================
+        // GAME 2: XÚC XẮC (DICE)
+        // =====================================================================
+        let diceState = { phase: 'FIRST_ROLL', target: null, bet: 0 };
+        let die1Rot = { x: 0, y: 0 }, die2Rot = { x: 0, y: 0 };
+        const dieFaceDefs = [
+            { value: 1, transform: 'translateZ(48px)' }, { value: 6, transform: 'rotateY(180deg) translateZ(48px)' },
+            { value: 2, transform: 'rotateY(90deg) translateZ(48px)' }, { value: 5, transform: 'rotateY(-90deg) translateZ(48px)' },
+            { value: 3, transform: 'rotateX(90deg) translateZ(48px)' }, { value: 4, transform: 'rotateX(-90deg) translateZ(48px)' }
+        ];
+        const dieValueRotation = { 1: { x: 0, y: 0 }, 6: { x: 0, y: 180 }, 2: { x: 0, y: -90 }, 5: { x: 0, y: 90 }, 3: { x: -90, y: 0 }, 4: { x: 90, y: 0 } };
+        function buildDieFaces(container) {
+            dieFaceDefs.forEach(f => {
+                const face = document.createElement('div');
+                face.className = 'face v' + f.value; face.style.transform = f.transform;
+                for (let i = 0; i < 9; i++) { const pip = document.createElement('span'); pip.className = 'pip'; face.appendChild(pip); }
+                container.appendChild(face);
+            });
+        }
+        function rollDieTo(el, value) {
+            const target = dieValueRotation[value];
+            const spinsX = ((Math.floor(Math.random() * 2) + 2) * 360) * (Math.random() < 0.5 ? 1 : -1);
+            const spinsY = ((Math.floor(Math.random() * 2) + 2) * 360) * (Math.random() < 0.5 ? 1 : -1);
+            const newX = target.x + spinsX, newY = target.y + spinsY;
+            el.style.transform = 'rotateX(' + newX + 'deg) rotateY(' + newY + 'deg)';
+            return { x: newX, y: newY };
+        }
+        function rollCrapsPair() {
+            let r1, r2, sum, tries = 0;
+            do {
+                r1 = Math.floor(Math.random() * 6) + 1;
+                r2 = Math.floor(Math.random() * 6) + 1;
+                sum = r1 + r2;
+                tries++;
+            } while ((sum === 7 || sum === 11) && Math.random() < 0.55 && tries < 8);
+            return { r1: r1, r2: r2, sum: sum };
+        }
+        window.diceRoll = function () {
+            if (document.getElementById('btnDiceRoll').disabled) return;
+            if (diceState.phase === 'FIRST_ROLL') {
+                let betAmount = parseFloat(document.getElementById('diceBetAmount').value);
+                if (!validateBet(betAmount)) return;
+                window.userState.balance -= betAmount; recordWager(betAmount); syncUserData();
+                SoundManager.chip();
+                diceState.bet = betAmount;
+                document.getElementById('diceBetAmount').disabled = true;
+            }
+            const btn = document.getElementById('btnDiceRoll');
+            btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Đang lắc...';
+            document.getElementById('diceMessage').innerText = "Xúc xắc đang lăn...";
+            document.getElementById('diceMessage').className = "text-center text-xl font-bold mb-6 h-8 text-gray-400";
+            SoundManager.dice();
+            const roll = rollCrapsPair();
+            die1Rot = rollDieTo(document.getElementById('die1Cube'), roll.r1);
+            die2Rot = rollDieTo(document.getElementById('die2Cube'), roll.r2);
+            setTimeout(() => { handleDiceResult(roll.sum); btn.disabled = false; btn.innerHTML = '🎲 Lắc Xúc Xắc'; }, 900);
+        };
+        function handleDiceResult(sum) {
+            const msgEl = document.getElementById('diceMessage');
+            if (diceState.phase === 'FIRST_ROLL') {
+                if (sum === 7 || sum === 11) diceWin("Thắng ngay lập tức (Ra 7 hoặc 11)!");
+                else if (sum === 2 || sum === 3 || sum === 12) diceLose('Thua ngay lập tức (Ra ' + sum + ')!');
+                else {
+                    diceState.phase = 'POINT'; diceState.target = sum;
+                    document.getElementById('diceTarget').innerText = sum;
+                    document.getElementById('diceDeath').innerText = "7";
+                    msgEl.innerText = 'Đổ ra ' + sum + '. Cần lắc lại ' + sum + ' để thắng, ra 7 là thua!';
+                    msgEl.className = "text-center text-xl font-bold mb-6 h-8 text-blue-400";
+                }
+            } else {
+                if (sum === diceState.target) diceWin("Trúng điểm mục tiêu! Thắng lớn!");
+                else if (sum === 7) diceLose("Seven out! Mất trắng!");
+                else { msgEl.innerText = 'Đổ ra ' + sum + '. Lắc tiếp...'; msgEl.className = "text-center text-xl font-bold mb-6 h-8 text-white"; }
+            }
+        }
+        function diceWin(text) {
+            const wonAmount = diceState.bet * 2;
+            window.userState.balance += wonAmount;
+            recordResult('dice', wonAmount - diceState.bet, text);
+            syncUserData();
+            SoundManager.coin(); SoundManager.win();
+            const msgEl = document.getElementById('diceMessage');
+            msgEl.innerText = text + ' (+$' + wonAmount.toFixed(2) + ')';
+            msgEl.className = "text-center text-xl font-bold mb-6 h-8 text-green-400 shake-anim";
+            diceReset();
+        }
+        function diceLose(text) {
+            recordResult('dice', -diceState.bet, text);
+            syncUserData();
+            SoundManager.lose();
+            const msgEl = document.getElementById('diceMessage');
+            msgEl.innerText = text + ' (-$' + diceState.bet.toFixed(2) + ')';
+            msgEl.className = "text-center text-xl font-bold mb-6 h-8 text-red-500 shake-anim";
+            diceReset();
+        }
+        function diceReset() {
+            diceState.phase = 'FIRST_ROLL';
+            document.getElementById('diceBetAmount').disabled = false;
+            document.getElementById('diceTarget').innerText = "-";
+            document.getElementById('diceDeath').innerText = "-";
+        }
+
+        // =====================================================================
+        // GAME 3: VÒNG QUAY MAY MẮN
+        // =====================================================================
+        const wheelColorByMult = { 2: '#22c55e', 3: '#3b82f6', 5: '#ef4444', 10: '#facc15' };
+        const wheelMultPattern = [2, 3, 2, 5, 2, 3, 2, 10, 2, 3, 2, 5, 2, 3, 2, 5, 3, 2, 10, 2, 3, 2, 5, 3];
+        const wheelSegments = wheelMultPattern.map(m => ({ color: wheelColorByMult[m], mult: m }));
+        let wheelCurrentDeg = 0, selectedWheelPrediction = null, wheelSpinning = false;
+        function drawWheel() {
+            const canvas = document.getElementById('wheelCanvas');
+            const ctx = canvas.getContext('2d');
+            const cx = canvas.width / 2, cy = canvas.height / 2, r = cx;
+            const sliceAngle = (Math.PI * 2) / wheelSegments.length;
+            wheelSegments.forEach((seg, i) => {
+                const currentAngle = i * sliceAngle;
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, currentAngle, currentAngle + sliceAngle);
+                ctx.fillStyle = seg.color; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = '#0f172a'; ctx.stroke();
+                ctx.save(); ctx.translate(cx, cy); ctx.rotate(currentAngle + sliceAngle / 2);
+                ctx.textAlign = "right"; ctx.fillStyle = "#fff"; ctx.font = "bold 11px Orbitron";
+                ctx.fillText(seg.mult + "x", r - 10, 4); ctx.restore();
+                seg.startDeg = (currentAngle / (Math.PI * 2)) * 360;
+                seg.endDeg = ((currentAngle + sliceAngle) / (Math.PI * 2)) * 360;
+            });
+            const ringEl = document.getElementById('wheelRivetRing');
+            ringEl.querySelectorAll('.wheel-rivet').forEach(el => el.remove());
+            for (let i = 0; i < 24; i++) {
+                const a = (i / 24) * Math.PI * 2;
+                const rivet = document.createElement('div'); rivet.className = 'wheel-rivet';
+                rivet.style.left = 'calc(50% + ' + (Math.cos(a) * 152) + 'px)'; rivet.style.top = 'calc(50% + ' + (Math.sin(a) * 152) + 'px)';
+                ringEl.appendChild(rivet);
+            }
+        }
+        function setWheelPredictButtonsDisabled(disabled) { document.querySelectorAll('.wheel-predict-btn').forEach(b => b.disabled = disabled); }
+        function resetWheelSelection() {
+            selectedWheelPrediction = null;
+            document.querySelectorAll('.wheel-predict-btn').forEach(b => b.classList.remove('picked'));
+            const spinBtn = document.getElementById('btnWheelSpin');
+            spinBtn.disabled = true; spinBtn.innerText = 'Chọn Mức Đoán Trước';
+        }
+        window.selectWheelPrediction = function (mult) {
+            if (wheelSpinning) return;
+            SoundManager.click();
+            selectedWheelPrediction = mult;
+            document.querySelectorAll('.wheel-predict-btn').forEach(b => b.classList.toggle('picked', parseInt(b.dataset.mult) === mult));
+            const spinBtn = document.getElementById('btnWheelSpin');
+            spinBtn.disabled = false; spinBtn.innerText = 'Quay Ngay (Đoán x' + mult + ')';
+        };
+        window.wheelSpin = function () {
+            if (wheelSpinning) return;
+            if (!selectedWheelPrediction) { showCustomModal("Chưa Chọn Mức Đoán", "Hãy chọn một mức nhân (x2, x3, x5 hoặc x10) mà bạn đoán vòng quay sẽ dừng lại trước khi quay!", "warning"); return; }
+            let betAmount = parseFloat(document.getElementById('wheelBetAmount').value);
+            if (!validateBet(betAmount)) return;
+            window.userState.balance -= betAmount; recordWager(betAmount); syncUserData();
+            SoundManager.chip(); SoundManager.spin();
+            const predicted = selectedWheelPrediction;
+            wheelSpinning = true;
+            document.getElementById('btnWheelSpin').disabled = true;
+            document.getElementById('btnWheelSpin').innerText = "Đang quay...";
+            setWheelPredictButtonsDisabled(true);
+            document.getElementById('wheelMessage').innerText = "Vòng quay đang chạy...";
+            document.getElementById('wheelMessage').className = "text-xl font-bold text-center h-8 text-yellow-400";
+
+            const targetIndex = Math.floor(Math.random() * wheelSegments.length);
+            const seg = wheelSegments[targetIndex];
+            const sliceDeg = 360 / wheelSegments.length;
+            const segCenterCanvasAngle = seg.startDeg + sliceDeg / 2;
+            const jitter = (Math.random() - 0.5) * sliceDeg * 0.5;
+            const targetCanvasAngle = segCenterCanvasAngle + jitter;
+            const targetD = ((270 - targetCanvasAngle) % 360 + 360) % 360;
+
+            const extraSpins = 6 * 360;
+            const currentMod = wheelCurrentDeg % 360;
+            let diff = targetD - currentMod;
+            if (diff < 0) diff += 360;
+            wheelCurrentDeg += extraSpins + diff;
+            document.getElementById('wheelCanvas').style.transform = 'rotate(' + wheelCurrentDeg + 'deg)';
+
+            setTimeout(() => {
+                const winningSeg = seg;
+                const msgEl = document.getElementById('wheelMessage');
+                if (winningSeg.mult === predicted) {
+                    const wonAmount = betAmount * winningSeg.mult;
+                    window.userState.balance += wonAmount;
+                    document.getElementById('wheelReadout').innerText = '$' + wonAmount.toFixed(2);
+                    recordResult('wheel', wonAmount - betAmount, 'Trúng ' + winningSeg.mult + 'x');
+                    syncUserData();
+                    SoundManager.coin(); winningSeg.mult >= 5 ? SoundManager.bigWin() : SoundManager.win();
+                    msgEl.innerText = 'Đoán đúng! Trúng ' + winningSeg.mult + 'x (+$' + wonAmount.toFixed(2) + ')';
+                    msgEl.className = "text-xl font-bold text-center h-8 text-green-400 shake-anim";
+                } else {
+                    document.getElementById('wheelReadout').innerText = '$0.00';
+                    recordResult('wheel', -betAmount, 'Dừng ở ' + winningSeg.mult + 'x');
+                    syncUserData();
+                    SoundManager.lose();
+                    msgEl.innerText = 'Đoán sai! Vòng quay dừng ở ' + winningSeg.mult + 'x. Mất -$' + betAmount.toFixed(2);
+                    msgEl.className = "text-xl font-bold text-center h-8 text-red-400 shake-anim";
+                }
+                wheelSpinning = false;
+                setWheelPredictButtonsDisabled(false);
+                resetWheelSelection();
+            }, 4200);
+        };
+
+        // =====================================================================
+        // GAME 4: ĐUA VỊT
+        // =====================================================================
+        const ducksData = [
+            { id: 1, name: "Vịt Cỏ", type: 'mallard', color: "#22d3ee" }, { id: 2, name: "Vịt Xiêm", type: 'muscovy', color: "#4ade80" },
+            { id: 3, name: "Vịt Cổ Xanh", type: 'teal', color: "#a78bfa" }, { id: 4, name: "Thiên Nga", type: 'swan', color: "#f472b6" }
+        ];
+        let selectedDuckId = null, isRacing = false;
+        const DUCK_SHAPES = {
+            mallard:
+                '<ellipse cx="44" cy="54" rx="34" ry="22" fill="currentColor"/>' +
+                '<circle cx="66" cy="30" r="18" fill="currentColor"/>' +
+                '<path d="M80 27 L97 21 L97 35 Z" fill="#f59e0b"/>' +
+                '<path d="M18 50 Q32 40 46 50 Q32 60 18 50 Z" fill="rgba(0,0,0,0.18)"/>' +
+                '<circle cx="70" cy="26" r="3.2" fill="#0f172a"/><circle cx="71" cy="25" r="1" fill="#ffffff"/>',
+            muscovy:
+                '<ellipse cx="42" cy="55" rx="38" ry="24" fill="currentColor"/>' +
+                '<circle cx="68" cy="28" r="17" fill="currentColor"/>' +
+                '<path d="M82 25 L98 20 L96 33 Z" fill="#f59e0b"/>' +
+                '<ellipse cx="75" cy="31" rx="5" ry="3.5" fill="#dc2626"/>' +
+                '<ellipse cx="70" cy="23" rx="2.6" ry="2" fill="#dc2626"/>' +
+                '<path d="M14 52 Q30 42 44 52 Q30 62 14 52 Z" fill="rgba(0,0,0,0.2)"/>' +
+                '<circle cx="72" cy="25" r="3" fill="#0f172a"/><circle cx="73" cy="24" r="1" fill="#ffffff"/>',
+            teal:
+                '<ellipse cx="45" cy="55" rx="32" ry="20" fill="currentColor"/>' +
+                '<circle cx="66" cy="29" r="16" fill="currentColor"/>' +
+                '<path d="M79 26 L94 21 L93 32 Z" fill="#334155"/>' +
+                '<path d="M58 16 L62 5 L65 17 Z" fill="currentColor"/><path d="M64 14 L68 3 L70 16 Z" fill="currentColor"/>' +
+                '<path d="M56 24 Q66 19 76 26" stroke="#0f172a" stroke-width="3" fill="none" opacity="0.35"/>' +
+                '<path d="M20 51 Q34 41 48 51 Q34 61 20 51 Z" fill="rgba(0,0,0,0.18)"/>' +
+                '<circle cx="70" cy="26" r="3" fill="#0f172a"/><circle cx="71" cy="25" r="1" fill="#ffffff"/>',
+            swan:
+                '<ellipse cx="40" cy="58" rx="36" ry="18" fill="currentColor"/>' +
+                '<path d="M58 50 C 66 40, 60 22, 74 14" stroke="currentColor" stroke-width="11" fill="none" stroke-linecap="round"/>' +
+                '<circle cx="76" cy="12" r="9" fill="currentColor"/>' +
+                '<path d="M84 10 L99 9 L96 16 Z" fill="#f59e0b"/>' +
+                '<circle cx="85" cy="9" r="2" fill="#0f172a"/>' +
+                '<path d="M20 48 Q34 30 50 46 Q34 56 20 48 Z" fill="rgba(255,255,255,0.25)"/>' +
+                '<circle cx="79" cy="10" r="1.8" fill="#0f172a"/><circle cx="79.5" cy="9.5" r="0.7" fill="#ffffff"/>'
+        };
+        function duckIconSVG(type, color, sizeClass) {
+            return '<svg viewBox="0 0 100 80" class="' + sizeClass + '" style="color:' + color + '" xmlns="http://www.w3.org/2000/svg">' + (DUCK_SHAPES[type] || DUCK_SHAPES.mallard) + '</svg>';
+        }
+        function buildReedStrip() {
+            const reedStrip = document.getElementById('reedStrip');
+            if (!reedStrip || reedStrip.dataset.built) return;
+            let html = '';
+            const count = 22;
+            for (let i = 0; i < count; i++) {
+                const left = (i / count) * 100 + (Math.random() * 2 - 1);
+                const h = 8 + Math.random() * 6;
+                const delay = (Math.random() * 2).toFixed(2);
+                html += '<div class="reed" style="left:' + left.toFixed(1) + '%;height:' + h.toFixed(0) + 'px;animation-delay:' + delay + 's;"></div>';
+            }
+            reedStrip.innerHTML = html;
+            reedStrip.dataset.built = '1';
+        }
+        function setupDuckRace() {
+            const selectors = document.getElementById('duckSelectors'); const tracks = document.getElementById('tracksContainer');
+            selectors.innerHTML = ''; tracks.innerHTML = '';
+            ducksData.forEach(duck => {
+                selectors.innerHTML +=
+                    '<div id="duckCard_' + duck.id + '" class="glass-panel p-3 rounded-lg text-center cursor-pointer border-2 border-gray-600 hover:border-white/40 transition opacity-75" onclick="selectDuck(' + duck.id + ')">' +
+                    '<div class="flex justify-center mb-2">' + duckIconSVG(duck.type, duck.color, 'duck-icon-lg') + '</div>' +
+                    '<div class="font-bold text-sm truncate" style="color:' + duck.color + '">' + duck.name + '</div></div>';
+                tracks.innerHTML +=
+                    '<div class="duck-track h-12 rounded-lg relative overflow-hidden flex items-center px-2 border-y border-white/10">' +
+                    '<div class="wave-overlay"></div>' +
+                    '<div class="absolute left-0 top-0 bottom-0 w-1" style="background:' + duck.color + '"></div>' +
+                    '<span class="absolute left-3 text-xs text-cyan-100/70 font-bold z-0">Làn ' + duck.id + '</span>' +
+                    '<div id="duckSprite_' + duck.id + '" class="duck absolute left-[0%] z-10" style="transition: left 0.4s linear;">' + duckIconSVG(duck.type, duck.color, 'duck-icon-sm') + '</div></div>';
+            });
+            buildReedStrip();
+        }
+        function spawnSplash(spriteEl) {
+            const lane = spriteEl.parentElement;
+            if (!lane) return;
+            const p = document.createElement('div');
+            p.className = 'splash-particle';
+            p.style.left = spriteEl.style.left;
+            p.style.bottom = (6 + Math.random() * 6) + 'px';
+            lane.appendChild(p);
+            p.addEventListener('animationend', () => p.remove());
+        }
+        window.selectDuck = function (id) {
+            if (isRacing) return;
+            SoundManager.click();
+            selectedDuckId = id;
+            const dSel = ducksData.find(d => d.id === selectedDuckId);
+            ducksData.forEach(d => {
+                const card = document.getElementById('duckCard_' + d.id);
+                card.style.borderColor = ''; card.style.boxShadow = '';
+                card.classList.remove('opacity-100'); card.classList.add('opacity-75');
+            });
+            const selCard = document.getElementById('duckCard_' + selectedDuckId);
+            selCard.classList.remove('opacity-75'); selCard.classList.add('opacity-100');
+            selCard.style.borderColor = dSel.color; selCard.style.boxShadow = '0 0 15px ' + dSel.color + '80';
+            const btn = document.getElementById('btnRaceStart'); btn.disabled = false; btn.innerText = "Bắt Đầu Đua!";
+        };
+        window.raceStart = function () {
+            if (!selectedDuckId || isRacing) return;
+            let betAmount = parseFloat(document.getElementById('raceBetAmount').value);
+            if (!validateBet(betAmount)) return;
+            window.userState.balance -= betAmount; recordWager(betAmount); syncUserData();
+            SoundManager.chip();
+            isRacing = true;
+            document.getElementById('btnRaceStart').disabled = true; document.getElementById('btnRaceStart').innerText = "Đang đua...";
+            let positions = { 1: 0, 2: 0, 3: 0, 4: 0 };
+            ducksData.forEach(d => { const s = document.getElementById('duckSprite_' + d.id); s.style.left = '0%'; s.classList.remove('duck-boost'); });
+            const winnerId = Math.floor(Math.random() * 4) + 1;
+            let tick = 0;
+            const raceLoop = setInterval(() => {
+                let finished = false;
+                tick++;
+                let leaderId = 1, leaderPos = -1;
+                ducksData.forEach(d => {
+                    let move = Math.random() * 6 + 2;
+                    if (d.id === winnerId) move += Math.random() * 3;
+                    positions[d.id] += move;
+                    if (positions[d.id] >= 92) { positions[d.id] = 92; finished = true; }
+                    if (positions[d.id] > leaderPos) { leaderPos = positions[d.id]; leaderId = d.id; }
+                    const sprite = document.getElementById('duckSprite_' + d.id);
+                    sprite.style.left = positions[d.id] + '%';
+                    if (tick % 2 === 0) spawnSplash(sprite);
+                });
+                ducksData.forEach(d => document.getElementById('duckSprite_' + d.id).classList.toggle('duck-boost', d.id === leaderId));
+                if (finished) { clearInterval(raceLoop); setTimeout(() => finishRace(winnerId, betAmount), 500); }
+            }, 400);
+        };
+        function finishRace(realWinnerId, betAmount) {
+            isRacing = false;
+            const myDuck = ducksData.find(d => d.id === selectedDuckId);
+            const winDuck = ducksData.find(d => d.id === realWinnerId);
+            if (realWinnerId === selectedDuckId) {
+                const won = betAmount * 4;
+                window.userState.balance += won;
+                recordResult('race', won - betAmount, myDuck.name + ' về nhất');
+                syncUserData();
+                SoundManager.coin(); SoundManager.bigWin();
+                showCustomModal("Thắng Cuộc", myDuck.name + " về nhất! Bạn nhận được +$" + won.toFixed(2), "success");
+            } else {
+                recordResult('race', -betAmount, winDuck.name + ' về nhất');
+                syncUserData();
+                SoundManager.lose();
+                showCustomModal("Thua Cuộc", winDuck.name + " về nhất. Bạn mất -$" + betAmount.toFixed(2), "error");
+            }
+            document.getElementById('btnRaceStart').disabled = false; document.getElementById('btnRaceStart').innerText = "Đua Lại";
+        }
+
+        // =====================================================================
+        // GAME 5: ĐÀO KIM CƯƠNG (MINES-STYLE DIG)
+        // =====================================================================
+        const MINES_CELL_COUNT = 30;
+        let minesState = { active: false, bet: 0, selected: new Set(), opening: false };
+        function setupMinesGrid() {
+            const grid = document.getElementById('minesGrid');
+            let html = '';
+            for (let i = 0; i < MINES_CELL_COUNT; i++) {
+                html += '<button type="button" id="mineCell_' + i + '" onclick="minesToggleCell(' + i + ')" class="mine-cell aspect-square rounded-lg bg-gray-700 border-2 border-gray-600 flex items-center justify-center text-xl font-bold text-gray-500" disabled>?</button>';
+            }
+            grid.innerHTML = html;
+        }
+        window.minesStart = function () {
+            if (minesState.active) return;
+            let betAmount = parseFloat(document.getElementById('minesBetAmount').value);
+            if (!validateBet(betAmount)) return;
+            window.userState.balance -= betAmount; recordWager(betAmount); syncUserData();
+            SoundManager.chip();
+            minesState = { active: true, bet: betAmount, selected: new Set(), opening: false };
+            for (let i = 0; i < MINES_CELL_COUNT; i++) {
+                const cell = document.getElementById('mineCell_' + i);
+                cell.disabled = false;
+                cell.className = 'mine-cell aspect-square rounded-lg bg-gray-700 border-2 border-gray-600 flex items-center justify-center text-xl font-bold text-gray-500';
+                cell.innerText = '?';
+            }
+            document.getElementById('minesMessage').innerText = '';
+            document.getElementById('minesBetAmount').disabled = true;
+            document.getElementById('btnMinesStart').classList.add('hidden');
+            document.getElementById('btnMinesOpen').classList.remove('hidden');
+            document.getElementById('btnMinesOpen').disabled = true;
+            document.getElementById('minesSelectedInfo').innerText = 'Đã chọn: 0 ô';
+        };
+        window.minesToggleCell = function (i) {
+            if (!minesState.active || minesState.opening) return;
+            const cell = document.getElementById('mineCell_' + i);
+            if (minesState.selected.has(i)) { minesState.selected.delete(i); cell.classList.remove('selected'); }
+            else { minesState.selected.add(i); cell.classList.add('selected'); SoundManager.click(); }
+            document.getElementById('minesSelectedInfo').innerText = 'Đã chọn: ' + minesState.selected.size + ' ô';
+            document.getElementById('btnMinesOpen').disabled = minesState.selected.size === 0;
+        };
+        function randomDiamonds() {
+            const r = Math.random();
+            if (r < 0.40) return 0; if (r < 0.70) return 1; if (r < 0.90) return 2; return 3;
+        }
+        const MINES_SPIN_ICONS = ['💎', '❌', '💎💎', '❌', '💎💎💎', '💎'];
+        function spinCellReveal(cell, finalHtml, onDone) {
+            cell.classList.add('spinning');
+            let i = Math.floor(Math.random() * MINES_SPIN_ICONS.length);
+            const spinTimer = setInterval(() => { cell.innerHTML = MINES_SPIN_ICONS[i % MINES_SPIN_ICONS.length]; i++; }, 55);
+            setTimeout(() => {
+                clearInterval(spinTimer);
+                cell.classList.remove('spinning');
+                cell.innerHTML = finalHtml;
+                cell.classList.add('settle');
+                SoundManager.cardFlip();
+                setTimeout(() => cell.classList.remove('settle'), 340);
+                if (onDone) onDone();
+            }, 340);
+        }
+        window.minesOpen = function () {
+            if (!minesState.active || minesState.selected.size === 0 || minesState.opening) return;
+            minesState.opening = true;
+            document.getElementById('btnMinesOpen').disabled = true;
+            for (let i = 0; i < MINES_CELL_COUNT; i++) document.getElementById('mineCell_' + i).disabled = true;
+            const indices = Array.from(minesState.selected);
+            const unitValue = (minesState.bet * 0.85) / indices.length;
+            let totalReward = 0;
+            const STEP = 380;
+            indices.forEach((idx, order) => {
+                setTimeout(() => {
+                    const cell = document.getElementById('mineCell_' + idx);
+                    cell.classList.add('revealed'); cell.classList.remove('selected');
+                    const d = randomDiamonds();
+                    const reward = d * unitValue;
+                    totalReward += reward;
+                    const finalHtml = d > 0 ? '💎'.repeat(Math.min(d, 3)) : '❌';
+                    spinCellReveal(cell, finalHtml, () => {
+                        if (order === indices.length - 1) setTimeout(() => minesFinish(totalReward), 350);
+                    });
+                }, order * STEP);
+            });
+        };
+        function minesFinish(totalReward) {
+            window.userState.balance += totalReward;
+            const net = totalReward - minesState.bet;
+            recordResult('mines', net, 'Đào ' + minesState.selected.size + ' ô');
+            syncUserData();
+            const msgEl = document.getElementById('minesMessage');
+            if (net > 0) {
+                msgEl.innerText = 'Trúng lớn! Nhận ' + fmt(totalReward) + ' (+' + fmt(net) + ')';
+                msgEl.className = 'text-center text-lg font-bold h-8 mb-1 text-green-400 shake-anim';
+                SoundManager.coin(); net >= minesState.bet ? SoundManager.bigWin() : SoundManager.win();
+            } else if (net === 0) {
+                msgEl.innerText = 'Hòa vốn — nhận lại ' + fmt(totalReward);
+                msgEl.className = 'text-center text-lg font-bold h-8 mb-1 text-yellow-300';
+            } else {
+                msgEl.innerText = 'Không may! Chỉ nhận ' + fmt(totalReward) + ' (' + fmt(net) + ')';
+                msgEl.className = 'text-center text-lg font-bold h-8 mb-1 text-red-400 shake-anim';
+                SoundManager.lose();
+            }
+            minesState.active = false; minesState.opening = false;
+            document.getElementById('minesBetAmount').disabled = false;
+            document.getElementById('btnMinesStart').classList.remove('hidden');
+            document.getElementById('btnMinesOpen').classList.add('hidden');
+        }
+
+        // =====================================================================
+        // GAME 6: XÌ DÁCH (BLACKJACK)
+        // =====================================================================
+        const CARD_RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        const CARD_SUITS = [{ s: '♠', red: false }, { s: '♥', red: true }, { s: '♦', red: true }, { s: '♣', red: false }];
+        function drawCard() {
+            const rank = CARD_RANKS[Math.floor(Math.random() * 13)];
+            const suit = CARD_SUITS[Math.floor(Math.random() * 4)];
+            return { rank: rank, suit: suit.s, red: suit.red };
+        }
+        function cardValue(rank) { if (rank === 'A') return 11; if (rank === '10' || rank === 'J' || rank === 'Q' || rank === 'K') return 10; return parseInt(rank, 10); }
+        function handValue(cards) {
+            let sum = 0, aces = 0;
+            cards.forEach(c => { sum += cardValue(c.rank); if (c.rank === 'A') aces++; });
+            while (sum > 21 && aces > 0) { sum -= 10; aces--; }
+            return sum;
+        }
+        function cardHtml(c, hidden, isNew) {
+            const flyClass = isNew ? ' card-deal-fly' : '';
+            if (hidden) return '<div class="card back' + flyClass + '"></div>';
+            return '<div class="card ' + (c.red ? 'red' : '') + flyClass + '"><div style="font-size:14px">' + c.rank + '</div><div style="font-size:22px">' + c.suit + '</div></div>';
+        }
+        let bj = null;
+        function bjReset() { bj = { active: false, hands: [], dealer: [], currentHand: 0, bet: 0, dealerHiddenRevealed: false, finished: false, dealerShown: 0 }; }
+        window.bjDeal = function () {
+            if (bj.active) return;
+            let betAmount = parseFloat(document.getElementById('bjBetAmount').value);
+            if (!validateBet(betAmount)) return;
+            window.userState.balance -= betAmount; recordWager(betAmount); syncUserData();
+            SoundManager.chip();
+            const playerCards = [drawCard(), drawCard()];
+            const dealerCards = [drawCard(), drawCard()];
+            SoundManager.cardFlip();
+            bj = { active: true, hands: [{ cards: playerCards, bet: betAmount, status: 'playing', doubled: false, isSplitAce: false }], dealer: dealerCards, currentHand: 0, bet: betAmount, dealerHiddenRevealed: false, finished: false };
+            document.getElementById('bjBetAmount').disabled = true;
+            document.getElementById('bjMessage').innerText = '';
+            const pVal = handValue(playerCards);
+            if (pVal === 21) {
+                bj.hands[0].status = 'blackjack';
+                bjRender();
+                setTimeout(bjDealerTurnAndResolve, 700);
+                return;
+            }
+            bjRender();
+        };
+        window.bjHit = function () {
+            if (!bj.active) return;
+            const hand = bj.hands[bj.currentHand];
+            if (!hand || hand.status !== 'playing') return;
+            hand.cards.push(drawCard());
+            SoundManager.cardFlip();
+            const v = handValue(hand.cards);
+            if (v > 21) { hand.status = 'bust'; bjNextHandOrDealer(); }
+            else if (v === 21) { hand.status = 'stand'; bjNextHandOrDealer(); }
+            else bjRender();
+        };
+        window.bjStand = function () {
+            if (!bj.active) return;
+            const hand = bj.hands[bj.currentHand];
+            if (!hand || hand.status !== 'playing') return;
+            hand.status = 'stand';
+            bjNextHandOrDealer();
+        };
+        window.bjDouble = function () {
+            if (!bj.active) return;
+            const hand = bj.hands[bj.currentHand];
+            if (!hand || hand.status !== 'playing' || hand.cards.length !== 2) return;
+            if (window.userState.balance < hand.bet) { showCustomModal("Không Đủ Tiền", "Số dư không đủ để nhân đôi cược!", "warning"); return; }
+            window.userState.balance -= hand.bet; recordWager(hand.bet);
+            hand.bet *= 2; hand.doubled = true;
+            hand.cards.push(drawCard());
+            SoundManager.chip(); SoundManager.cardFlip();
+            const v = handValue(hand.cards);
+            hand.status = v > 21 ? 'bust' : 'stand';
+            syncUserData();
+            bjNextHandOrDealer();
+        };
+        window.bjSplit = function () {
+            if (!bj.active) return;
+            const hand = bj.hands[bj.currentHand];
+            if (!hand || hand.cards.length !== 2 || cardValue(hand.cards[0].rank) !== cardValue(hand.cards[1].rank)) return;
+            if (window.userState.balance < hand.bet) { showCustomModal("Không Đủ Tiền", "Số dư không đủ để tách bài!", "warning"); return; }
+            if (bj.hands.length >= 2) return;
+            window.userState.balance -= hand.bet; recordWager(hand.bet); syncUserData();
+            const isAce = hand.cards[0].rank === 'A';
+            const secondCard = hand.cards.pop();
+            const newHand = { cards: [secondCard, drawCard()], bet: hand.bet, status: 'playing', doubled: false, isSplitAce: isAce, _prevShown: 1 };
+            hand.cards.push(drawCard());
+            hand.isSplitAce = isAce;
+            hand._prevShown = 1;
+            if (isAce) { hand.status = 'stand'; newHand.status = 'stand'; }
+            bj.hands.splice(bj.currentHand + 1, 0, newHand);
+            SoundManager.cardFlip();
+            if (hand.status === 'stand') bjNextHandOrDealer(); else bjRender();
+        };
+        function bjNextHandOrDealer() {
+            if (bj.currentHand < bj.hands.length - 1) { bj.currentHand++; bjRender(); }
+            else bjDealerTurnAndResolve();
+        }
+        function bjDealerTurnAndResolve() {
+            bj.dealerHiddenRevealed = true;
+            bjRender();
+            const anyNeedsDealer = bj.hands.some(h => h.status !== 'bust');
+            if (!anyNeedsDealer) { setTimeout(bjResolveAll, 500); return; }
+            function dealerStep() {
+                const v = handValue(bj.dealer);
+                if (v < 17) {
+                    bj.dealer.push(drawCard());
+                    SoundManager.cardFlip();
+                    bjRender();
+                    setTimeout(dealerStep, 600);
+                } else setTimeout(bjResolveAll, 400);
+            }
+            setTimeout(dealerStep, 500);
+        }
+        function bjResolveAll() {
+            const dealerVal = handValue(bj.dealer);
+            const dealerBust = dealerVal > 21;
+            let totalReturn = 0, totalBet = 0, results = [];
+            bj.hands.forEach(hand => {
+                totalBet += hand.bet;
+                const pv = handValue(hand.cards);
+                let outcome, ret = 0;
+                if (hand.status === 'bust') { outcome = 'lose'; ret = 0; }
+                else if (hand.status === 'blackjack') {
+                    if (dealerVal === 21 && bj.dealer.length === 2) { outcome = 'push'; ret = hand.bet; }
+                    else { outcome = 'blackjack'; ret = hand.bet * 2.5; }
+                } else if (dealerBust) { outcome = 'win'; ret = hand.bet * 2; }
+                else if (pv > dealerVal) { outcome = 'win'; ret = hand.bet * 2; }
+                else if (pv === dealerVal) { outcome = 'push'; ret = hand.bet; }
+                else { outcome = 'lose'; ret = 0; }
+                totalReturn += ret;
+                results.push({ outcome: outcome, ret: ret, bet: hand.bet });
+            });
+            if (totalReturn > 0) window.userState.balance += totalReturn;
+            const net = totalReturn - totalBet;
+            recordResult('blackjack', net, results.map(r => r.outcome).join(', '));
+            syncUserData();
+            if (net > 0) { if (net >= totalBet * 1.4) SoundManager.bigWin(); else SoundManager.win(); SoundManager.coin(); }
+            else if (net < 0) SoundManager.lose();
+            bj.finished = true;
+            bjRender();
+            document.getElementById('bjBetAmount').disabled = false;
+            const msg = results.map((r, i) => (results.length > 1 ? ('Bài ' + (i + 1) + ': ') : '') +
+                (r.outcome === 'win' ? 'Thắng' : r.outcome === 'blackjack' ? 'Blackjack' : r.outcome === 'push' ? 'Hòa' : 'Thua')).join(' | ');
+            const msgEl = document.getElementById('bjMessage');
+            msgEl.innerText = msg + ' — Tổng: ' + (net >= 0 ? '+' : '') + fmt(net);
+            msgEl.className = 'text-center text-lg font-bold h-8 mb-4 ' + (net > 0 ? 'text-green-400' : net < 0 ? 'text-red-400' : 'text-yellow-300');
+            bj.active = false;
+        }
+        function bjRender() {
+            const dealerDiv = document.getElementById('bjDealerCards');
+            const handsDiv = document.getElementById('bjPlayerHands');
+            if (!bj.dealer || bj.dealer.length === 0) {
+                dealerDiv.innerHTML = '<div class="text-gray-500 text-sm">Chưa có bài</div>';
+                handsDiv.innerHTML = '<div class="text-gray-500 text-sm col-span-2 text-center">Nhấn "Chia Bài" để bắt đầu</div>';
+                document.getElementById('bjDealerValue').innerText = '-';
+                ['btnBjHit', 'btnBjStand', 'btnBjDouble', 'btnBjSplit'].forEach(id => document.getElementById(id).disabled = true);
+                document.getElementById('btnBjDeal').disabled = false;
+                bj.dealerShown = 0;
+                return;
+            }
+            const prevDealerShown = bj.dealerShown || 0;
+            let dealerHtml = cardHtml(bj.dealer[0], false, 0 >= prevDealerShown);
+            for (let i = 1; i < bj.dealer.length; i++) dealerHtml += cardHtml(bj.dealer[i], i === 1 && !bj.dealerHiddenRevealed, i >= prevDealerShown);
+            dealerDiv.innerHTML = dealerHtml;
+            bj.dealerShown = bj.dealer.length;
+            document.getElementById('bjDealerValue').innerText = bj.dealerHiddenRevealed ? handValue(bj.dealer) : '?';
+
+            handsDiv.innerHTML = bj.hands.map((hand, idx) => {
+                const prevShown = hand._prevShown || 0;
+                const cardsHtml = hand.cards.map((c, i) => cardHtml(c, false, i >= prevShown)).join('');
+                hand._prevShown = hand.cards.length;
+                const val = handValue(hand.cards);
+                const active = idx === bj.currentHand && hand.status === 'playing' && bj.active && !bj.finished;
+                const statusLabel = hand.status === 'bust' ? 'Quắc (Bust)' : hand.status === 'blackjack' ? 'Blackjack!' : hand.status === 'stand' ? 'Dừng' : '';
+                return '<div class="flex flex-col items-center gap-2 p-3 rounded-xl ' + (active ? 'ring-2 ring-yellow-400 bg-gray-800/60' : 'bg-gray-900/40') + '">' +
+                    '<div class="flex gap-1 flex-wrap justify-center">' + cardsHtml + '</div>' +
+                    '<div class="font-numbers text-lg font-bold text-blue-300">' + val + (statusLabel ? ' • ' + statusLabel : '') + '</div>' +
+                    '<div class="text-xs text-gray-400">Cược: ' + fmt(hand.bet) + '</div></div>';
+            }).join('');
+
+            const hand = bj.hands[bj.currentHand];
+            const canAct = bj.active && !bj.finished && hand && hand.status === 'playing';
+            document.getElementById('btnBjHit').disabled = !canAct;
+            document.getElementById('btnBjStand').disabled = !canAct;
+            document.getElementById('btnBjDouble').disabled = !(canAct && hand.cards.length === 2 && window.userState.balance >= hand.bet && !hand.isSplitAce);
+            document.getElementById('btnBjSplit').disabled = !(canAct && hand.cards.length === 2 && cardValue(hand.cards[0].rank) === cardValue(hand.cards[1].rank) && window.userState.balance >= hand.bet && bj.hands.length < 2);
+            document.getElementById('btnBjDeal').disabled = bj.active && !bj.finished;
+        }
+    </script>
+</body>
+</html>
