@@ -51,11 +51,20 @@
         .face.v5 .pip:nth-child(1), .face.v5 .pip:nth-child(3), .face.v5 .pip:nth-child(5), .face.v5 .pip:nth-child(7), .face.v5 .pip:nth-child(9) { opacity: 1; }
         .face.v6 .pip:nth-child(1), .face.v6 .pip:nth-child(3), .face.v6 .pip:nth-child(4), .face.v6 .pip:nth-child(6), .face.v6 .pip:nth-child(7), .face.v6 .pip:nth-child(9) { opacity: 1; }
 
-        .wheel-outer-ring { background: conic-gradient(from 0deg, #92400e, #d97706, #92400e, #d97706, #92400e, #d97706, #92400e, #d97706, #92400e); box-shadow: 0 0 25px rgba(217,119,6,0.5), inset 0 0 15px rgba(0,0,0,0.5); }
+        .wheel-outer-ring { background: conic-gradient(from 0deg, #92400e, #d97706, #92400e, #d97706, #92400e, #d97706, #92400e, #d97706, #92400e); box-shadow: 0 0 25px rgba(217,119,6,0.5), inset 0 0 15px rgba(0,0,0,0.5); aspect-ratio: 1 / 1; }
         .wheel-rivet { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fde68a, #92400e); box-shadow: 0 0 4px rgba(0,0,0,0.6); }
-        #wheelCanvas { transition: transform 4.2s cubic-bezier(0.12, 0.85, 0.1, 1); }
+        #wheelCanvas { transition: transform 4.2s cubic-bezier(0.12, 0.85, 0.1, 1); width: 100%; height: 100%; aspect-ratio: 1 / 1; display: block; }
+        #rouletteCanvas { transition: transform 4.5s cubic-bezier(0.1, 0.82, 0.1, 1); }
         .wheel-pointer { width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 28px solid #facc15; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); z-index: 20; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
         .wheel-readout { font-family: 'Orbitron', sans-serif; background: #111827; border: 2px solid #b45309; box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 10px rgba(217,119,6,0.3); }
+
+        /* ---- Roulette wheel: locked 1:1 aspect ratio, luxury rim, spinning ball ---- */
+        .roulette-outer-ring { aspect-ratio: 1 / 1; background: conic-gradient(from 0deg, #78350f, #d4af37 8%, #92400e 16%, #f5d576 24%, #78350f 32%, #d4af37 40%, #92400e 48%, #f5d576 56%, #78350f 64%, #d4af37 72%, #92400e 80%, #f5d576 88%, #78350f 100%); box-shadow: 0 0 28px rgba(212,175,55,0.55), inset 0 0 18px rgba(0,0,0,0.6); border: 2px solid #4a2c0a; }
+        #rouletteWheelInner { aspect-ratio: 1 / 1; }
+        .roulette-canvas-square { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: 1 / 1; display: block; }
+        .roulette-ball { position: absolute; left: 50%; top: 50%; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffffff, #cbd5e1 55%, #64748b 100%); box-shadow: 0 0 6px rgba(255,255,255,0.85), 0 2px 3px rgba(0,0,0,0.5); z-index: 12; will-change: transform; }
+        .roulette-ball.settled { animation: ballSettleGlow 0.55s ease-out; }
+        @keyframes ballSettleGlow { 0% { box-shadow: 0 0 18px 7px rgba(250,204,21,0.95); } 100% { box-shadow: 0 0 6px rgba(255,255,255,0.85), 0 2px 3px rgba(0,0,0,0.5); } }
 
         .wheel-predict-btn { position: relative; border: none; cursor: pointer; transform: translateY(0); transition: transform 0.1s, box-shadow 0.1s, filter 0.15s; }
         .wheel-predict-btn.mult2 { background: linear-gradient(180deg,#4ade80,#16a34a); box-shadow: 0 5px 0 #15803d, 0 0 10px rgba(74,222,128,0.4); color:#052e16; }
@@ -106,8 +115,14 @@
         .card { width: 58px; height: 82px; border-radius: 8px; background: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); border: 1px solid #cbd5e1; color: #0f172a; font-weight: 800; flex-shrink: 0; }
         .card.red { color: #dc2626; }
         .card.back { background: repeating-linear-gradient(45deg,#1e3a8a,#1e3a8a 6px,#1d4ed8 6px,#1d4ed8 12px); border: 1px solid #1e3a8a; }
-        .card-deal-fly { animation: cardFlyIn 0.4s cubic-bezier(.2,.8,.25,1); }
-        @keyframes cardFlyIn { 0% { transform: translate(-130px,-36px) rotate(-30deg) scale(0.55); opacity:0; } 55% { opacity:1; } 100% { transform: translate(0,0) rotate(0deg) scale(1); opacity:1; } }
+        .card-deal-fly { animation: cardFlyIn 0.42s cubic-bezier(.2,.7,.25,1); transform-origin: 50% 100%; }
+        @keyframes cardFlyIn {
+            0% { transform: translate(-138px,-14px) rotate(-32deg) scale(0.5); opacity: 0; }
+            45% { transform: translate(-58px,-46px) rotate(-14deg) scale(0.82); opacity: 1; }
+            100% { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
+        }
+        .card-flip-reveal { animation: cardFlipReveal 0.45s ease-in-out; }
+        @keyframes cardFlipReveal { 0% { transform: rotateY(180deg); } 100% { transform: rotateY(0deg); } }
 
         /* ---- Blackjack dealer & shoe ---- */
         .dealer-badge { width: 46px; height: 46px; border-radius: 9999px; background: linear-gradient(135deg,#4338ca,#1e1b4b); display:flex; align-items:center; justify-content:center; font-size:22px; border:2px solid #818cf8; box-shadow:0 0 14px rgba(99,102,241,0.5); flex-shrink:0; }
@@ -117,6 +132,14 @@
         .card-shoe .shoe-card:nth-child(2) { transform: rotate(-2deg) translate(0,1px); }
         .card-shoe .shoe-card:nth-child(3) { transform: rotate(5deg) translate(3px,0); }
         .card-shoe .shoe-box { position:absolute; bottom:-4px; left:-4px; right:-4px; height:14px; background:#78350f; border-radius:3px; border:1px solid #92400e; box-shadow:0 3px 4px rgba(0,0,0,0.4); }
+        .dealer-hand-sprite { position:absolute; top:-20px; left:50%; transform: translate(-50%, -14px) rotate(-25deg) scale(0.75); font-size:22px; opacity:0; pointer-events:none; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); z-index:6; }
+        .dealer-hand-sprite.pulling { animation: dealerHandPull 0.42s ease-in-out; }
+        @keyframes dealerHandPull {
+            0% { transform: translate(-50%, -14px) rotate(-25deg) scale(0.75); opacity: 0; }
+            35% { transform: translate(-50%, 8px) rotate(-6deg) scale(0.95); opacity: 1; }
+            62% { transform: translate(-50%, 2px) rotate(-12deg) scale(0.9); opacity: 1; }
+            100% { transform: translate(-50%, -14px) rotate(-25deg) scale(0.75); opacity: 0; }
+        }
 
         /* ---- Quick-bet % buttons ---- */
         .quick-bet-btn { background:#374151; border:1px solid #4b5563; border-radius:6px; padding:7px 0; font-size:11px; font-weight:800; color:#e5e7eb; transition: background 0.15s, transform 0.1s; cursor:pointer; }
@@ -127,6 +150,21 @@
 
         /* ---- New player protection ---- */
         .protection-badge { background: linear-gradient(135deg,#0891b2,#155e75); border:1px solid #22d3ee; }
+
+        /* ---- Roulette ---- */
+        .roulette-readout { font-family: 'Orbitron', sans-serif; background: #111827; border: 2px solid #b45309; box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 10px rgba(245,158,11,0.25); }
+        .roulette-quick-btn { border: none; cursor: pointer; padding: 12px 0; border-radius: 10px; font-weight: 800; transition: transform 0.1s, box-shadow 0.1s, filter 0.15s; }
+        .roulette-quick-btn.roulette-red { background: linear-gradient(180deg,#f87171,#dc2626); box-shadow: 0 4px 0 #991b1b; color:#450a0a; }
+        .roulette-quick-btn.roulette-black { background: linear-gradient(180deg,#334155,#0f172a); box-shadow: 0 4px 0 #020617; color:#e2e8f0; }
+        .roulette-quick-btn.roulette-neutral { background: linear-gradient(180deg,#94a3b8,#475569); box-shadow: 0 4px 0 #1e293b; color:#0f172a; }
+        .roulette-quick-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+        .roulette-quick-btn.picked { transform: translateY(3px) scale(1.03); outline: 2px solid #ffffff; box-shadow: 0 1px 0 rgba(0,0,0,0.3), 0 0 14px #ffffff; }
+        .roulette-num { aspect-ratio: 1; border-radius: 5px; font-size: 11px; font-weight: 800; border: none; cursor: pointer; color: #fff; transition: transform 0.1s, outline 0.1s; }
+        .roulette-num.red { background: #dc2626; }
+        .roulette-num.black { background: #1e293b; }
+        .roulette-num.green { background: #16a34a; }
+        .roulette-num.picked { outline: 2px solid #facc15; transform: scale(1.12); box-shadow: 0 0 8px #facc15; }
+        .roulette-num:active { transform: scale(0.92); }
     </style>
 </head>
 <body class="h-screen flex flex-col relative">
@@ -228,6 +266,7 @@
             <div class="flex items-center gap-2">
                 <div class="text-right hidden md:block">
                     <div id="displayUsername" class="font-bold text-sm text-purple-300">Player</div>
+                    <div id="displayAdminChip" class="text-[10px] text-red-400 font-bold hidden">🛠️ ADMIN / TEST MODE</div>
                     <div id="displayTitleChip" class="text-[10px] text-yellow-400 font-bold hidden"></div>
                 </div>
                 <div class="w-10 h-10 rounded-full border-2 border-purple-500 flex items-center justify-center font-bold text-sm text-white cursor-pointer" id="avatarBox" onclick="openAvatarModal()" title="Đổi avatar" style="background: linear-gradient(135deg,#8b5cf6,#4f46e5);">?</div>
@@ -254,9 +293,12 @@
             <div class="bg-gradient-to-r from-indigo-900 to-purple-900 rounded-2xl p-6 md:p-8 mb-4 flex justify-between items-center shadow-2xl relative overflow-hidden">
                 <div class="relative z-10">
                     <h2 class="text-3xl md:text-4xl font-bold mb-3">Chào mừng trở lại!</h2>
-                    <p class="text-gray-300 max-w-xl text-sm md:text-base">Sòng bạc giải trí — chỉ dùng tiền ảo, không có giá trị thực. Khám phá 6 trò chơi bên dưới!</p>
+                    <p class="text-gray-300 max-w-xl text-sm md:text-base">Sòng bạc giải trí — chỉ dùng tiền ảo, không có giá trị thực. Khám phá 7 trò chơi bên dưới!</p>
                 </div>
                 <div class="text-9xl absolute right-0 bottom-0 opacity-20 transform rotate-12 text-blue-400">💎</div>
+            </div>
+            <div id="homeAdminBanner" class="hidden mb-4 bg-gradient-to-r from-red-900 to-orange-900 border border-red-500 rounded-xl px-4 py-3 flex items-center gap-3">
+                <div class="flex items-center gap-2 text-sm md:text-base font-bold text-red-100">🛠️ Chế Độ Admin/Test — Tiền không giới hạn, tài khoản này bị ẩn khỏi Bảng Xếp Hạng.</div>
             </div>
             <div id="homeProtectionBanner" class="hidden mb-8 protection-badge rounded-xl px-4 py-3 flex items-center justify-between gap-3 cursor-pointer" onclick="toggleProtectionModal()">
                 <div class="flex items-center gap-2 text-sm md:text-base font-bold text-cyan-50">🛡️ <span id="homeProtectionText">Đang được Bảo Hộ Người Mới</span></div>
@@ -341,6 +383,16 @@
                             <div class="p-4 bg-gray-800/50">
                                 <h4 class="text-xl font-bold mb-1">Xì Dách</h4>
                                 <p class="text-sm text-gray-400">Luật Blackjack chuẩn: Rút bài, Dừng, Nhân đôi, Tách bài.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer group border border-transparent hover:border-amber-500" onclick="showView('roulette')">
+                            <div class="h-32 bg-gray-900 relative overflow-hidden flex items-center justify-center">
+                                <span class="inline-block text-5xl group-hover:rotate-180 transition duration-700">🎡</span>
+                            </div>
+                            <div class="p-4 bg-gray-800/50">
+                                <h4 class="text-xl font-bold mb-1">Roulette</h4>
+                                <p class="text-sm text-gray-400">Cược Màu, Chẵn/Lẻ hoặc Số cụ thể trên bàn quay chuẩn châu Âu.</p>
                             </div>
                         </div>
 
@@ -584,11 +636,12 @@
                         <div class="card-shoe" title="Bộ bài">
                             <div class="shoe-card"></div><div class="shoe-card"></div><div class="shoe-card"></div>
                             <div class="shoe-box"></div>
+                            <div id="dealerHandSprite" class="dealer-hand-sprite" aria-hidden="true">🤚</div>
                         </div>
                     </div>
-                    <div id="bjDealerCards" class="flex gap-1 justify-center flex-wrap min-h-[90px] items-center"></div>
+                    <div id="bjDealerCards" class="flex gap-1 justify-center flex-wrap min-h-[90px] items-center" style="perspective:700px;"></div>
                 </div>
-                <div id="bjPlayerHands" class="grid grid-cols-1 sm:grid-cols-2 gap-4 justify-items-center mb-4 min-h-[130px]"></div>
+                <div id="bjPlayerHands" class="grid grid-cols-1 sm:grid-cols-2 gap-4 justify-items-center mb-4 min-h-[130px]" style="perspective:700px;"></div>
                 <div id="bjMessage" class="text-center text-lg font-bold h-8 mb-4"></div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6 max-w-xl mx-auto">
                     <button id="btnBjHit" onclick="bjHit()" class="py-2.5 btn-blue rounded-lg font-bold" disabled>Rút Thêm</button>
@@ -617,6 +670,55 @@
             </div>
         </div>
 
+        <div id="rouletteView" class="max-w-5xl mx-auto hidden">
+            <button onclick="showView('home')" class="mb-4 text-gray-400 hover:text-white flex items-center gap-2">← Về sảnh chính</button>
+            <div class="glass-panel rounded-xl p-6 border border-amber-900/50 max-w-2xl mx-auto">
+                <div class="text-center mb-4">
+                    <h2 class="text-3xl font-bold text-amber-300 mb-1">🎡 Roulette</h2>
+                    <p class="text-gray-400 text-sm">Bàn quay chuẩn châu Âu (0-36). Chọn một kiểu cược rồi bấm Quay.</p>
+                </div>
+                <div class="flex flex-col items-center gap-2 mb-5">
+                    <div class="roulette-readout px-4 py-1.5 rounded-lg text-amber-300 text-sm font-bold text-center" id="rouletteReadout">Chọn cược để bắt đầu</div>
+                    <div class="relative flex justify-center w-full">
+                        <div class="wheel-pointer" style="border-top-color:#f59e0b;"></div>
+                        <div class="roulette-outer-ring w-64 h-64 md:w-72 md:h-72 rounded-full flex items-center justify-center relative">
+                            <div id="rouletteWheelInner" class="w-[90%] h-[90%] rounded-full border-4 border-gray-900 overflow-hidden relative shadow-[0_0_30px_rgba(245,158,11,0.3)] bg-gray-800">
+                                <canvas id="rouletteCanvas" width="300" height="300" class="roulette-canvas-square"></canvas>
+                                <div id="rouletteBall" class="roulette-ball"></div>
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-gray-900 rounded-full border-2 border-amber-600 z-20 shadow-inner flex items-center justify-center text-amber-400 font-bold text-[10px] pointer-events-none">QUAY</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-xs text-gray-500 block mb-2">Cược nhanh:</label>
+                    <div class="grid grid-cols-4 gap-2 mb-3 text-sm text-center">
+                        <button type="button" onclick="selectRouletteOption('red')" data-rtype="red" class="roulette-quick-btn roulette-red">ĐỎ x2</button>
+                        <button type="button" onclick="selectRouletteOption('black')" data-rtype="black" class="roulette-quick-btn roulette-black">ĐEN x2</button>
+                        <button type="button" onclick="selectRouletteOption('even')" data-rtype="even" class="roulette-quick-btn roulette-neutral">CHẴN x2</button>
+                        <button type="button" onclick="selectRouletteOption('odd')" data-rtype="odd" class="roulette-quick-btn roulette-neutral">LẺ x2</button>
+                    </div>
+                    <label class="text-xs text-gray-500 block mb-2">Hoặc chọn một số cụ thể (thắng x36):</label>
+                    <div id="rouletteNumberGrid" class="grid grid-cols-7 gap-1 mb-1"></div>
+                </div>
+                <div id="rouletteMessage" class="text-lg font-bold text-center h-8 mb-2"></div>
+                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                    <label class="text-sm text-gray-400 block mb-2">Tiền cược ($)</label>
+                    <div class="flex bg-gray-900 rounded-lg border border-gray-700 p-1">
+                        <input type="number" id="rouletteBetAmount" value="20" step="0.01" min="1" onblur="sanitizeBetInput(this)" class="bg-transparent w-full outline-none text-xl font-numbers px-2 text-white">
+                    </div>
+                    <div class="grid grid-cols-5 gap-1 mt-2 mb-4">
+                        <button type="button" onclick="setQuickBet('rouletteBetAmount',0.10)" class="quick-bet-btn">10%</button>
+                        <button type="button" onclick="setQuickBet('rouletteBetAmount',0.25)" class="quick-bet-btn">25%</button>
+                        <button type="button" onclick="setQuickBet('rouletteBetAmount',0.50)" class="quick-bet-btn">50%</button>
+                        <button type="button" onclick="setQuickBet('rouletteBetAmount',0.75)" class="quick-bet-btn">75%</button>
+                        <button type="button" onclick="setQuickBet('rouletteBetAmount',1)" class="quick-bet-btn quick-bet-max">TẤT CẢ</button>
+                    </div>
+                    <button id="btnRouletteSpin" onclick="rouletteSpin()" class="w-full h-12 btn-green text-xl font-bold rounded-lg uppercase tracking-wider" disabled>Chọn Cược Trước</button>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <div id="dailyModal" class="fixed inset-0 modal-overlay z-[100] flex items-center justify-center hidden">
@@ -638,18 +740,19 @@
         function defaultUserState() {
             return {
                 id: null, name: "Khách", balance: 100.00, currentDay: 1, lastClaimed: null, avatarId: 'duck',
-                equippedTitle: null, unlockedTitles: [], soundEnabled: true, crashHistory: [],
+                equippedTitle: null, unlockedTitles: [], soundEnabled: true, crashHistory: [], isAdmin: false,
                 createdAt: null, emergencySupportLastClaim: null,
                 stats: {
                     totalWagered: 0, totalWon: 0, totalLost: 0, gamesPlayed: 0, bestCrashMult: 0,
-                    wins: { crash: 0, dice: 0, wheel: 0, race: 0, mines: 0, blackjack: 0 },
-                    played: { crash: 0, dice: 0, wheel: 0, race: 0, mines: 0, blackjack: 0 }
+                    wins: { crash: 0, dice: 0, wheel: 0, race: 0, mines: 0, blackjack: 0, roulette: 0 },
+                    played: { crash: 0, dice: 0, wheel: 0, race: 0, mines: 0, blackjack: 0, roulette: 0 }
                 },
                 history: []
             };
         }
         window.userState = defaultUserState();
         let globalPlayersCache = [];
+        const ADMIN_START_BALANCE = 999999999;
 
         // ---- New player protection (economy-only perks; never touches game RNG) ----
         const PROTECTION_DAYS = 3;
@@ -672,13 +775,22 @@
             const banner = document.getElementById('homeProtectionBanner');
             const bannerText = document.getElementById('homeProtectionText');
             if (banner && bannerText) {
-                if (daysLeft > 0) {
+                if (daysLeft > 0 && !window.userState.isAdmin) {
                     bannerText.innerText = 'Đang được Bảo Hộ Người Mới — còn ' + daysLeft + ' ngày (+50% quà hằng ngày, hỗ trợ khẩn cấp khi hết tiền)';
                     banner.classList.remove('hidden');
                 } else {
                     banner.classList.add('hidden');
                 }
             }
+        }
+        function updateAdminBadge() {
+            const isAdmin = !!window.userState.isAdmin;
+            const chip = document.getElementById('displayAdminChip');
+            if (chip) chip.classList.toggle('hidden', !isAdmin);
+            const banner = document.getElementById('homeAdminBanner');
+            if (banner) banner.classList.toggle('hidden', !isAdmin);
+            const avatarBox = document.getElementById('avatarBox');
+            if (avatarBox) avatarBox.style.borderColor = isAdmin ? '#ef4444' : '#a855f7';
         }
         window.toggleProtectionModal = function () {
             const modal = document.getElementById('protectionModal');
@@ -739,9 +851,10 @@
             { id: 'duck_champion', name: 'Vua Đường Đua', icon: '🏁', check: s => s.stats.wins.race >= 10 },
             { id: 'diamond_digger', name: 'Thợ Đào Kim Cương', icon: '💎', check: s => s.stats.wins.mines >= 10 },
             { id: 'blackjack_ace', name: 'Tay Bài Xì Dách', icon: '🃏', check: s => s.stats.wins.blackjack >= 10 },
+            { id: 'roulette_master', name: 'Cao Thủ Roulette', icon: '🎡', check: s => s.stats.wins.roulette >= 15 },
             { id: 'legend', name: 'Huyền Thoại Sòng Bạc', icon: '👑', check: s => s.stats.gamesPlayed >= 200 }
         ];
-        const GAME_NAMES = { crash: 'Tên Lửa', dice: 'Xúc Xắc', wheel: 'Vòng Quay', race: 'Đua Vịt', mines: 'Đào Kim Cương', blackjack: 'Xì Dách' };
+        const GAME_NAMES = { crash: 'Tên Lửa', dice: 'Xúc Xắc', wheel: 'Vòng Quay', race: 'Đua Vịt', mines: 'Đào Kim Cương', blackjack: 'Xì Dách', roulette: 'Roulette' };
 
         function fmt(n) { const sign = n < 0 ? '-' : ''; return sign + '$' + Math.abs(n).toFixed(2); }
 
@@ -793,6 +906,24 @@
                     osc.start(t0); osc.stop(t0 + dur + 0.02);
                 } catch (e) {}
             }
+            function noiseBurst(dur, vol, delay, hpFreq) {
+                if (!window.userState.soundEnabled) return;
+                const c = ensureCtx(); if (!c) return;
+                vol = vol === undefined ? 0.1 : vol; delay = delay || 0; hpFreq = hpFreq || 1500;
+                try {
+                    const t0 = c.currentTime + delay;
+                    const bufferSize = Math.max(1, Math.floor(c.sampleRate * dur));
+                    const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+                    const src = c.createBufferSource(); src.buffer = buffer;
+                    const gain = c.createGain(); gain.gain.setValueAtTime(vol, t0);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+                    const filter = c.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = hpFreq;
+                    src.connect(filter); filter.connect(gain); gain.connect(c.destination);
+                    src.start(t0);
+                } catch (e) {}
+            }
             return {
                 click() { tone(440, 0.05, 'square', 0.08); },
                 dice() { [0, 0.08, 0.16].forEach((d, i) => tone(300 + i * 60, 0.07, 'triangle', 0.12, d)); },
@@ -802,7 +933,11 @@
                 win() { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.18, 'triangle', 0.15, i * 0.09)); },
                 bigWin() { [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.22, 'triangle', 0.18, i * 0.08)); },
                 lose() { [300, 220, 160].forEach((f, i) => tone(f, 0.22, 'sawtooth', 0.12, i * 0.09)); },
-                coin() { tone(1200, 0.06, 'sine', 0.1); }
+                coin() { tone(1200, 0.06, 'sine', 0.1); },
+                tick() { tone(1700, 0.02, 'square', 0.045); },
+                ballDrop() { tone(220, 0.09, 'sine', 0.16); tone(160, 0.11, 'sine', 0.1, 0.05); noiseBurst(0.05, 0.06, 0.01, 800); },
+                cardSlide() { noiseBurst(0.13, 0.11, 0, 1400); },
+                cardPlace() { tone(190, 0.06, 'square', 0.12); noiseBurst(0.04, 0.07, 0.015, 900); }
             };
         })();
         window.toggleSound = function () {
@@ -957,6 +1092,7 @@
         }
         async function saveProfile(state) { return await storageSetRetry('profile:' + state.id, JSON.stringify(state), false); }
         async function saveLeaderboardEntry() {
+            if (window.userState.isAdmin) return;
             let map = {};
             const r = await storageGetSafe('leaderboard-data', true);
             if (r) { try { map = JSON.parse(r.value); } catch (e) { map = {}; } }
@@ -997,15 +1133,19 @@
             document.getElementById('authStatus').classList.remove('hidden');
             document.getElementById('btnLogin').disabled = true;
             const id = "player-" + nameInput.toLowerCase().replace(/\s+/g, '-');
+            const isAdminLogin = /^admin(:.*)?$/i.test(nameInput);
             const existing = await loadProfile(id);
             if (existing) {
                 window.userState = Object.assign(defaultUserState(), existing);
                 window.userState.id = id;
+                window.userState.isAdmin = isAdminLogin;
             } else {
                 window.userState = defaultUserState();
                 window.userState.id = id;
                 window.userState.name = nameInput;
                 window.userState.createdAt = Date.now();
+                window.userState.isAdmin = isAdminLogin;
+                if (isAdminLogin) window.userState.balance = ADMIN_START_BALANCE;
                 await saveProfile(window.userState);
                 await saveLeaderboardEntry();
             }
@@ -1031,15 +1171,17 @@
             updateTitleDisplay();
             updateSoundButton();
             updateProtectionBadge();
+            updateAdminBadge();
             updateBalanceUI();
             setupDailyGrid();
             document.getElementById('homeView').classList.remove('hidden');
             const today = new Date().toDateString();
-            if (window.userState.lastClaimed !== today) setTimeout(showDailyModal, 800);
+            if (window.userState.lastClaimed !== today && !window.userState.isAdmin) setTimeout(showDailyModal, 800);
             drawWheel();
             resetWheelSelection();
             setupDuckRace();
             setupMinesGrid();
+            setupRoulette();
             bjReset();
             bjRender();
         }
@@ -1085,11 +1227,13 @@
             const real = await loadLeaderboard();
             const byId = {};
             real.forEach(p => { if (p && p.id) byId[p.id] = p; });
-            const t = TITLES.find(x => x.id === window.userState.equippedTitle);
-            byId[window.userState.id] = {
-                id: window.userState.id, name: window.userState.name, balance: window.userState.balance,
-                titleIcon: t ? t.icon : '', titleName: t ? t.name : ''
-            };
+            if (!window.userState.isAdmin) {
+                const t = TITLES.find(x => x.id === window.userState.equippedTitle);
+                byId[window.userState.id] = {
+                    id: window.userState.id, name: window.userState.name, balance: window.userState.balance,
+                    titleIcon: t ? t.icon : '', titleName: t ? t.name : ''
+                };
+            }
             const players = Object.values(byId).sort((a, b) => b.balance - a.balance);
             globalPlayersCache = players;
             renderLeaderboardUI(players);
@@ -1124,14 +1268,17 @@
         };
 
         window.showView = function (viewId) {
-            ['home', 'crash', 'dice', 'wheel', 'race', 'mines', 'blackjack'].forEach(v => document.getElementById(v + 'View').classList.add('hidden'));
+            ['home', 'crash', 'dice', 'wheel', 'race', 'mines', 'blackjack', 'roulette'].forEach(v => document.getElementById(v + 'View').classList.add('hidden'));
             document.getElementById(viewId + 'View').classList.remove('hidden');
             if (viewId === 'crash') initCrashCanvas();
             if (viewId === 'wheel') document.getElementById('wheelMessage').innerText = "";
+            if (viewId === 'roulette') document.getElementById('rouletteMessage').innerText = "";
         };
 
         window.validateBet = function (amount) {
-            if (isNaN(amount) || amount < MIN_BET) { showCustomModal("Lỗi Cược", "Số tiền cược tối thiểu là " + fmt(MIN_BET) + ".", "error"); return false; }
+            if (isNaN(amount) || amount <= 0) { showCustomModal("Lỗi Cược", "Số tiền cược không hợp lệ.", "error"); return false; }
+            if (window.userState.isAdmin) return true;
+            if (amount < MIN_BET) { showCustomModal("Lỗi Cược", "Số tiền cược tối thiểu là " + fmt(MIN_BET) + ".", "error"); return false; }
             if (amount > window.userState.balance) {
                 if (window.userState.balance < MIN_BET) {
                     showCustomModal("Hết Số Dư", "Bạn đã hết tiền để đặt cược. Hãy nhận quà đăng nhập hằng ngày 🎁" + (isProtected() ? " hoặc dùng Hỗ Trợ Khẩn Cấp trong mục Bảo Hộ Người Mới 🛡️" : "") + " để tiếp tục chơi.", "warning");
@@ -1817,7 +1964,10 @@
         }
 
         // =====================================================================
-        // GAME 6: XÌ DÁCH (BLACKJACK)
+        // GAME 6: XÌ DÁCH (BLACKJACK) — sequential dealer-dealt cards with
+        // hand/slide/place animation+audio, driven by dealInitialCards(cardList)
+        // and dealOneCard(target, card) so a future backend result list could
+        // replace the local drawCard() RNG without touching the animation code.
         // =====================================================================
         const CARD_RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
         const CARD_SUITS = [{ s: '♠', red: false }, { s: '♥', red: true }, { s: '♦', red: true }, { s: '♣', red: false }];
@@ -1833,26 +1983,63 @@
             while (sum > 21 && aces > 0) { sum -= 10; aces--; }
             return sum;
         }
-        function cardHtml(c, hidden, isNew) {
+        function cardHtml(c, hidden, isNew, isFlipping) {
             const flyClass = isNew ? ' card-deal-fly' : '';
+            const flipClass = isFlipping ? ' card-flip-reveal' : '';
             if (hidden) return '<div class="card back' + flyClass + '"></div>';
-            return '<div class="card ' + (c.red ? 'red' : '') + flyClass + '"><div style="font-size:14px">' + c.rank + '</div><div style="font-size:22px">' + c.suit + '</div></div>';
+            return '<div class="card ' + (c.red ? 'red' : '') + flyClass + flipClass + '"><div style="font-size:14px">' + c.rank + '</div><div style="font-size:22px">' + c.suit + '</div></div>';
+        }
+        function wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+        function triggerDealerHandPull() {
+            const hand = document.getElementById('dealerHandSprite');
+            if (!hand) return;
+            hand.classList.remove('pulling');
+            void hand.offsetWidth; // restart the CSS animation
+            hand.classList.add('pulling');
+        }
+        // Deals exactly one card into targetArray with the hand-pull gesture,
+        // slide sound, fly-in+flip animation and landing thud — the single choke
+        // point every card in the game passes through.
+        async function dealOneCard(targetArray, card) {
+            triggerDealerHandPull();
+            SoundManager.cardSlide();
+            await wait(180);
+            targetArray.push(card);
+            bjRender();
+            await wait(340);
+            SoundManager.cardPlace();
+            await wait(160);
+        }
+        // Opening deal in proper turn order: Player, Dealer, Player, Dealer.
+        // cardList is optional — pass 4 cards to replay an exact backend result;
+        // omitted entries fall back to the local drawCard() RNG.
+        async function dealInitialCards(cardList) {
+            cardList = cardList || [];
+            const hand = bj.hands[0];
+            await dealOneCard(hand.cards, cardList[0] || drawCard());
+            await dealOneCard(bj.dealer, cardList[1] || drawCard());
+            await dealOneCard(hand.cards, cardList[2] || drawCard());
+            await dealOneCard(bj.dealer, cardList[3] || drawCard());
         }
         let bj = null;
-        function bjReset() { bj = { active: false, hands: [], dealer: [], currentHand: 0, bet: 0, dealerHiddenRevealed: false, finished: false, dealerShown: 0 }; }
-        window.bjDeal = function () {
+        function bjReset() {
+            bj = { active: false, hands: [], dealer: [], currentHand: 0, bet: 0, dealerHiddenRevealed: false, finished: false, dealerShown: 0, dealing: false, actionInProgress: false, holeFlipPlayed: false };
+        }
+        window.bjDeal = async function (cardList) {
             if (bj.active) return;
             let betAmount = parseFloat(document.getElementById('bjBetAmount').value);
             if (!validateBet(betAmount)) return;
             window.userState.balance -= betAmount; recordWager(betAmount); syncUserData();
             SoundManager.chip();
-            const playerCards = [drawCard(), drawCard()];
-            const dealerCards = [drawCard(), drawCard()];
-            SoundManager.cardFlip();
-            bj = { active: true, hands: [{ cards: playerCards, bet: betAmount, status: 'playing', doubled: false, isSplitAce: false }], dealer: dealerCards, currentHand: 0, bet: betAmount, dealerHiddenRevealed: false, finished: false };
+            bj = { active: true, hands: [{ cards: [], bet: betAmount, status: 'playing', doubled: false, isSplitAce: false }], dealer: [], currentHand: 0, bet: betAmount, dealerHiddenRevealed: false, finished: false, dealerShown: 0, dealing: true, actionInProgress: false, holeFlipPlayed: false };
             document.getElementById('bjBetAmount').disabled = true;
             document.getElementById('bjMessage').innerText = '';
-            const pVal = handValue(playerCards);
+            bjRender();
+
+            await dealInitialCards(cardList);
+            bj.dealing = false;
+
+            const pVal = handValue(bj.hands[0].cards);
             if (pVal === 21) {
                 bj.hands[0].status = 'blackjack';
                 bjRender();
@@ -1861,54 +2048,61 @@
             }
             bjRender();
         };
-        window.bjHit = function () {
-            if (!bj.active) return;
+        window.bjHit = async function () {
+            if (!bj.active || bj.dealing || bj.actionInProgress) return;
             const hand = bj.hands[bj.currentHand];
             if (!hand || hand.status !== 'playing') return;
-            hand.cards.push(drawCard());
-            SoundManager.cardFlip();
+            bj.actionInProgress = true;
+            bjRender();
+            await dealOneCard(hand.cards, drawCard());
             const v = handValue(hand.cards);
-            if (v > 21) { hand.status = 'bust'; bjNextHandOrDealer(); }
-            else if (v === 21) { hand.status = 'stand'; bjNextHandOrDealer(); }
-            else bjRender();
+            if (v > 21) { hand.status = 'bust'; bj.actionInProgress = false; bjNextHandOrDealer(); }
+            else if (v === 21) { hand.status = 'stand'; bj.actionInProgress = false; bjNextHandOrDealer(); }
+            else { bj.actionInProgress = false; bjRender(); }
         };
         window.bjStand = function () {
-            if (!bj.active) return;
+            if (!bj.active || bj.dealing || bj.actionInProgress) return;
             const hand = bj.hands[bj.currentHand];
             if (!hand || hand.status !== 'playing') return;
             hand.status = 'stand';
             bjNextHandOrDealer();
         };
-        window.bjDouble = function () {
-            if (!bj.active) return;
+        window.bjDouble = async function () {
+            if (!bj.active || bj.dealing || bj.actionInProgress) return;
             const hand = bj.hands[bj.currentHand];
             if (!hand || hand.status !== 'playing' || hand.cards.length !== 2) return;
             if (window.userState.balance < hand.bet) { showCustomModal("Không Đủ Tiền", "Số dư không đủ để nhân đôi cược!", "warning"); return; }
+            bj.actionInProgress = true;
             window.userState.balance -= hand.bet; recordWager(hand.bet);
             hand.bet *= 2; hand.doubled = true;
-            hand.cards.push(drawCard());
-            SoundManager.chip(); SoundManager.cardFlip();
+            SoundManager.chip();
+            syncUserData();
+            bjRender();
+            await dealOneCard(hand.cards, drawCard());
             const v = handValue(hand.cards);
             hand.status = v > 21 ? 'bust' : 'stand';
-            syncUserData();
+            bj.actionInProgress = false;
             bjNextHandOrDealer();
         };
-        window.bjSplit = function () {
-            if (!bj.active) return;
+        window.bjSplit = async function () {
+            if (!bj.active || bj.dealing || bj.actionInProgress) return;
             const hand = bj.hands[bj.currentHand];
             if (!hand || hand.cards.length !== 2 || cardValue(hand.cards[0].rank) !== cardValue(hand.cards[1].rank)) return;
             if (window.userState.balance < hand.bet) { showCustomModal("Không Đủ Tiền", "Số dư không đủ để tách bài!", "warning"); return; }
             if (bj.hands.length >= 2) return;
+            bj.actionInProgress = true;
             window.userState.balance -= hand.bet; recordWager(hand.bet); syncUserData();
             const isAce = hand.cards[0].rank === 'A';
             const secondCard = hand.cards.pop();
-            const newHand = { cards: [secondCard, drawCard()], bet: hand.bet, status: 'playing', doubled: false, isSplitAce: isAce, _prevShown: 1 };
-            hand.cards.push(drawCard());
-            hand.isSplitAce = isAce;
+            const newHand = { cards: [secondCard], bet: hand.bet, status: 'playing', doubled: false, isSplitAce: isAce, _prevShown: 1 };
             hand._prevShown = 1;
-            if (isAce) { hand.status = 'stand'; newHand.status = 'stand'; }
             bj.hands.splice(bj.currentHand + 1, 0, newHand);
-            SoundManager.cardFlip();
+            bjRender();
+            await dealOneCard(hand.cards, drawCard());
+            await dealOneCard(newHand.cards, drawCard());
+            hand.isSplitAce = isAce;
+            if (isAce) { hand.status = 'stand'; newHand.status = 'stand'; }
+            bj.actionInProgress = false;
             if (hand.status === 'stand') bjNextHandOrDealer(); else bjRender();
         };
         function bjNextHandOrDealer() {
@@ -1917,17 +2111,19 @@
         }
         function bjDealerTurnAndResolve() {
             bj.dealerHiddenRevealed = true;
+            SoundManager.cardFlip();
             bjRender();
             const anyNeedsDealer = bj.hands.some(h => h.status !== 'bust');
             if (!anyNeedsDealer) { setTimeout(bjResolveAll, 500); return; }
-            function dealerStep() {
+            async function dealerStep() {
                 const v = handValue(bj.dealer);
                 if (v < 17) {
-                    bj.dealer.push(drawCard());
-                    SoundManager.cardFlip();
-                    bjRender();
-                    setTimeout(dealerStep, 600);
-                } else setTimeout(bjResolveAll, 400);
+                    await dealOneCard(bj.dealer, drawCard());
+                    await wait(250);
+                    dealerStep();
+                } else {
+                    setTimeout(bjResolveAll, 400);
+                }
             }
             setTimeout(dealerStep, 500);
         }
@@ -1971,23 +2167,28 @@
             const handsDiv = document.getElementById('bjPlayerHands');
             if (!bj.dealer || bj.dealer.length === 0) {
                 dealerDiv.innerHTML = '<div class="text-gray-500 text-sm">Chưa có bài</div>';
-                handsDiv.innerHTML = '<div class="text-gray-500 text-sm col-span-2 text-center">Nhấn "Chia Bài" để bắt đầu</div>';
+                handsDiv.innerHTML = '<div class="text-gray-500 text-sm col-span-2 text-center">' + (bj.dealing ? 'Nhà cái đang chia bài...' : 'Nhấn "Chia Bài" để bắt đầu') + '</div>';
                 document.getElementById('bjDealerValue').innerText = '-';
                 ['btnBjHit', 'btnBjStand', 'btnBjDouble', 'btnBjSplit'].forEach(id => document.getElementById(id).disabled = true);
-                document.getElementById('btnBjDeal').disabled = false;
+                document.getElementById('btnBjDeal').disabled = !!bj.dealing;
                 bj.dealerShown = 0;
                 return;
             }
             const prevDealerShown = bj.dealerShown || 0;
-            let dealerHtml = cardHtml(bj.dealer[0], false, 0 >= prevDealerShown);
-            for (let i = 1; i < bj.dealer.length; i++) dealerHtml += cardHtml(bj.dealer[i], i === 1 && !bj.dealerHiddenRevealed, i >= prevDealerShown);
+            let dealerHtml = cardHtml(bj.dealer[0], false, 0 >= prevDealerShown, false);
+            for (let i = 1; i < bj.dealer.length; i++) {
+                const stillHidden = i === 1 && !bj.dealerHiddenRevealed;
+                const justRevealed = i === 1 && bj.dealerHiddenRevealed && !bj.holeFlipPlayed;
+                dealerHtml += cardHtml(bj.dealer[i], stillHidden, i >= prevDealerShown, justRevealed);
+                if (justRevealed) bj.holeFlipPlayed = true;
+            }
             dealerDiv.innerHTML = dealerHtml;
             bj.dealerShown = bj.dealer.length;
             document.getElementById('bjDealerValue').innerText = bj.dealerHiddenRevealed ? handValue(bj.dealer) : '?';
 
             handsDiv.innerHTML = bj.hands.map((hand, idx) => {
                 const prevShown = hand._prevShown || 0;
-                const cardsHtml = hand.cards.map((c, i) => cardHtml(c, false, i >= prevShown)).join('');
+                const cardsHtml = hand.cards.map((c, i) => cardHtml(c, false, i >= prevShown, false)).join('');
                 hand._prevShown = hand.cards.length;
                 const val = handValue(hand.cards);
                 const active = idx === bj.currentHand && hand.status === 'playing' && bj.active && !bj.finished;
@@ -1999,13 +2200,208 @@
             }).join('');
 
             const hand = bj.hands[bj.currentHand];
-            const canAct = bj.active && !bj.finished && hand && hand.status === 'playing';
+            const canAct = bj.active && !bj.finished && !bj.dealing && !bj.actionInProgress && hand && hand.status === 'playing';
             document.getElementById('btnBjHit').disabled = !canAct;
             document.getElementById('btnBjStand').disabled = !canAct;
             document.getElementById('btnBjDouble').disabled = !(canAct && hand.cards.length === 2 && window.userState.balance >= hand.bet && !hand.isSplitAce);
             document.getElementById('btnBjSplit').disabled = !(canAct && hand.cards.length === 2 && cardValue(hand.cards[0].rank) === cardValue(hand.cards[1].rank) && window.userState.balance >= hand.bet && bj.hands.length < 2);
             document.getElementById('btnBjDeal').disabled = bj.active && !bj.finished;
         }
+
+        // =====================================================================
+        // GAME 7: ROULETTE — standard European single-zero wheel (0-36).
+        // The core animation/resolution entry point is runRouletteSpin(winningNumber):
+        // it always takes an explicit winning number, so a future backend result
+        // could drive it directly. The wheel disc does the exact alignment (same
+        // proven approach as the Lucky Wheel); the ball's spiral/bounce motion is
+        // purely decorative and always finishes at the pointer, so the two layers
+        // can never disagree on the result.
+        // =====================================================================
+        const ROULETTE_WHEEL_ORDER = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+        const ROULETTE_RED_SET = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
+        const ROULETTE_SPIN_MS = 4500;
+        function rouletteColorOf(num) { if (num === 0) return 'green'; return ROULETTE_RED_SET.has(num) ? 'red' : 'black'; }
+        const rouletteSegments = ROULETTE_WHEEL_ORDER.map(n => ({ num: n, color: rouletteColorOf(n) }));
+        let rouletteCurrentDeg = 0, rouletteSelection = null, rouletteSpinning = false, rouletteBallFrame = null;
+
+        function drawRouletteWheel() {
+            const canvas = document.getElementById('rouletteCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const cx = canvas.width / 2, cy = canvas.height / 2, r = cx;
+            const sliceAngle = (Math.PI * 2) / rouletteSegments.length;
+            const colorHex = { red: '#dc2626', black: '#1e293b', green: '#16a34a' };
+            rouletteSegments.forEach((seg, i) => {
+                const currentAngle = i * sliceAngle;
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, currentAngle, currentAngle + sliceAngle);
+                ctx.fillStyle = colorHex[seg.color]; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = '#0f172a'; ctx.stroke();
+                ctx.save(); ctx.translate(cx, cy); ctx.rotate(currentAngle + sliceAngle / 2);
+                ctx.textAlign = "right"; ctx.fillStyle = "#fff"; ctx.font = "bold 9px Orbitron";
+                ctx.fillText(String(seg.num), r - 8, 3); ctx.restore();
+                seg.startDeg = (currentAngle / (Math.PI * 2)) * 360;
+                seg.endDeg = ((currentAngle + sliceAngle) / (Math.PI * 2)) * 360;
+            });
+        }
+        function setupRouletteNumberGrid() {
+            const grid = document.getElementById('rouletteNumberGrid');
+            if (!grid || grid.dataset.built) return;
+            let html = '';
+            for (let n = 0; n <= 36; n++) {
+                html += '<button type="button" id="rnum_' + n + '" onclick="selectRouletteOption(\'number\',' + n + ')" class="roulette-num ' + rouletteColorOf(n) + '">' + n + '</button>';
+            }
+            grid.innerHTML = html;
+            grid.dataset.built = '1';
+        }
+        function setupRoulette() { setupRouletteNumberGrid(); drawRouletteWheel(); resetRouletteSelection(); }
+        function setRouletteButtonsDisabled(disabled) {
+            document.querySelectorAll('.roulette-quick-btn').forEach(b => b.disabled = disabled);
+            document.querySelectorAll('.roulette-num').forEach(b => b.disabled = disabled);
+        }
+        function resetRouletteSelection() {
+            rouletteSelection = null;
+            document.querySelectorAll('.roulette-quick-btn').forEach(b => b.classList.remove('picked'));
+            document.querySelectorAll('.roulette-num').forEach(b => b.classList.remove('picked'));
+            const spinBtn = document.getElementById('btnRouletteSpin');
+            if (spinBtn) { spinBtn.disabled = true; spinBtn.innerText = 'Chọn Cược Trước'; }
+        }
+        window.selectRouletteOption = function (type, number) {
+            if (rouletteSpinning) return;
+            SoundManager.click();
+            rouletteSelection = (type === 'number') ? { type: 'number', number: number } : { type: type };
+            document.querySelectorAll('.roulette-quick-btn').forEach(b => b.classList.toggle('picked', b.dataset.rtype === type));
+            document.querySelectorAll('.roulette-num').forEach(b => b.classList.remove('picked'));
+            if (type === 'number') {
+                const cell = document.getElementById('rnum_' + number);
+                if (cell) cell.classList.add('picked');
+            }
+            const spinBtn = document.getElementById('btnRouletteSpin');
+            spinBtn.disabled = false;
+            const labelMap = { red: 'ĐỎ', black: 'ĐEN', even: 'CHẴN', odd: 'LẺ' };
+            spinBtn.innerText = type === 'number' ? ('Quay Ngay (Số ' + number + ')') : ('Quay Ngay (' + labelMap[type] + ')');
+        };
+        function rouletteEval(num, selection) {
+            const color = rouletteColorOf(num);
+            if (selection.type === 'red') return color === 'red';
+            if (selection.type === 'black') return color === 'black';
+            if (selection.type === 'even') return num !== 0 && num % 2 === 0;
+            if (selection.type === 'odd') return num % 2 === 1;
+            if (selection.type === 'number') return num === selection.number;
+            return false;
+        }
+        function rouletteMultOf(selection) { return selection.type === 'number' ? 36 : 2; }
+
+        // Ball layer: purely decorative, always spirals from the rim inward and
+        // settles back at the fixed pointer (top). The wheel disc is what actually
+        // rotates to bring the winning pocket under that same pointer, so the two
+        // can never visually disagree.
+        function animateRouletteBall(durationMs) {
+            const container = document.getElementById('rouletteWheelInner');
+            const ball = document.getElementById('rouletteBall');
+            if (!container || !ball) return;
+            if (rouletteBallFrame) cancelAnimationFrame(rouletteBallFrame);
+            ball.classList.remove('settled');
+            const rect = container.getBoundingClientRect();
+            const R = rect.width / 2;
+            const OUTER = R * 0.90;
+            const REST = R * 0.70;
+            const TOTAL_ROT = 6 * 360;
+            const pocketStep = 360 / rouletteSegments.length;
+            let lastTick = 0;
+            const startTime = performance.now();
+            function frame(now) {
+                let t = (now - startTime) / durationMs;
+                if (t >= 1) {
+                    ball.style.transform = 'translate(0px,' + (-REST) + 'px)';
+                    ball.classList.add('settled');
+                    SoundManager.ballDrop();
+                    rouletteBallFrame = null;
+                    return;
+                }
+                const eased = 1 - Math.pow(1 - t, 3);
+                const angleDeg = -TOTAL_ROT * eased;
+                let radius = OUTER - (OUTER - REST) * Math.pow(eased, 1.4);
+                if (t > 0.68) {
+                    const bt = Math.min(1, (t - 0.68) / 0.32);
+                    radius += Math.sin(bt * Math.PI * 6) * (1 - bt) * (R * 0.05);
+                }
+                const rad = angleDeg * Math.PI / 180;
+                const x = radius * Math.sin(rad);
+                const y = -radius * Math.cos(rad);
+                ball.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
+                const traveled = Math.abs(angleDeg);
+                const tickCount = Math.floor(traveled / pocketStep);
+                if (tickCount > lastTick) { lastTick = tickCount; SoundManager.tick(); }
+                rouletteBallFrame = requestAnimationFrame(frame);
+            }
+            ball.style.transform = 'translate(0px,' + (-OUTER) + 'px)';
+            rouletteBallFrame = requestAnimationFrame(frame);
+        }
+
+        // Core round runner — accepts an explicit winning number so a future
+        // backend result could call this directly instead of the local RNG below.
+        function runRouletteSpin(winningNumber, betAmount, selection) {
+            const winIndex = ROULETTE_WHEEL_ORDER.indexOf(winningNumber);
+            const seg = rouletteSegments[winIndex >= 0 ? winIndex : 0];
+            const sliceDeg = 360 / rouletteSegments.length;
+            const segCenterCanvasAngle = seg.startDeg + sliceDeg / 2;
+            const jitter = (Math.random() - 0.5) * sliceDeg * 0.6;
+            const targetCanvasAngle = segCenterCanvasAngle + jitter;
+            const targetD = ((270 - targetCanvasAngle) % 360 + 360) % 360;
+
+            const extraSpins = 7 * 360;
+            const currentMod = rouletteCurrentDeg % 360;
+            let diff = targetD - currentMod;
+            if (diff < 0) diff += 360;
+            rouletteCurrentDeg += extraSpins + diff;
+            document.getElementById('rouletteCanvas').style.transform = 'rotate(' + rouletteCurrentDeg + 'deg)';
+            animateRouletteBall(ROULETTE_SPIN_MS);
+
+            setTimeout(() => {
+                const num = seg.num;
+                const color = seg.color;
+                const won = rouletteEval(num, selection);
+                const colorLabel = { red: 'Đỏ', black: 'Đen', green: 'Xanh Lá' }[color];
+                const msgEl = document.getElementById('rouletteMessage');
+                document.getElementById('rouletteReadout').innerText = 'Kết quả: ' + num + ' (' + colorLabel + ')';
+                if (won) {
+                    const mult = rouletteMultOf(selection);
+                    const wonAmount = betAmount * mult;
+                    window.userState.balance += wonAmount;
+                    recordResult('roulette', wonAmount - betAmount, 'Trúng ' + num + ' (' + colorLabel + ')');
+                    syncUserData();
+                    SoundManager.coin(); if (mult >= 36) SoundManager.bigWin(); else SoundManager.win();
+                    msgEl.innerText = '🎉 Thắng! Bi dừng ở ' + num + ' (' + colorLabel + ') — nhận ' + fmt(wonAmount);
+                    msgEl.className = "text-lg font-bold text-center h-8 mb-2 text-green-400 shake-anim";
+                } else {
+                    recordResult('roulette', -betAmount, 'Dừng ở ' + num + ' (' + colorLabel + ')');
+                    syncUserData();
+                    SoundManager.lose();
+                    msgEl.innerText = '💥 Thua! Bi dừng ở ' + num + ' (' + colorLabel + ') — mất ' + fmt(betAmount);
+                    msgEl.className = "text-lg font-bold text-center h-8 mb-2 text-red-400 shake-anim";
+                }
+                rouletteSpinning = false;
+                setRouletteButtonsDisabled(false);
+                resetRouletteSelection();
+            }, ROULETTE_SPIN_MS);
+        }
+
+        window.rouletteSpin = function () {
+            if (rouletteSpinning) return;
+            if (!rouletteSelection) { showCustomModal("Chưa Chọn Cược", "Hãy chọn Đỏ/Đen, Chẵn/Lẻ hoặc một số cụ thể trước khi quay!", "warning"); return; }
+            let betAmount = parseFloat(document.getElementById('rouletteBetAmount').value);
+            if (!validateBet(betAmount)) return;
+            window.userState.balance -= betAmount; recordWager(betAmount); syncUserData();
+            SoundManager.chip(); SoundManager.spin();
+            const selection = rouletteSelection;
+            rouletteSpinning = true;
+            document.getElementById('btnRouletteSpin').disabled = true;
+            document.getElementById('btnRouletteSpin').innerText = "Đang quay...";
+            setRouletteButtonsDisabled(true);
+            document.getElementById('rouletteMessage').innerText = "";
+            document.getElementById('rouletteReadout').innerText = "Bi đang quay...";
+            const winningNumber = ROULETTE_WHEEL_ORDER[Math.floor(Math.random() * ROULETTE_WHEEL_ORDER.length)];
+            runRouletteSpin(winningNumber, betAmount, selection);
+        };
     </script>
 </body>
 </html>
