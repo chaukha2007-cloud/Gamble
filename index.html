@@ -75,28 +75,35 @@
         .wheel-predict-btn.picked { transform: translateY(4px) scale(1.03); outline: 2px solid #ffffff; box-shadow: 0 1px 0 rgba(0,0,0,0.3), 0 0 16px #ffffff; }
         .wheel-predict-btn:disabled { filter: grayscale(45%) brightness(0.75); cursor: not-allowed; }
 
-        .duck-track { background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.16) 0 2px, transparent 2px 46px), linear-gradient(180deg, #2c5f7c 0%, #163044 100%); box-shadow: inset 0 2px 8px rgba(0,0,0,0.35); }
+        .duck-track { background-image: repeating-linear-gradient(90deg, rgba(255,250,230,0.45) 0 2px, transparent 2px 46px), linear-gradient(180deg, #5a9c3f 0%, #5a9c3f 14%, #c19a5b 14%, #a67a3f 50%, #8a6633 86%, #4d7c2f 86%, #4d7c2f 100%); box-shadow: inset 0 2px 8px rgba(0,0,0,0.35); }
         .duck { transition: left 0.3s ease-in-out; }
         .finish-flag { background: repeating-conic-gradient(#f8fafc 0% 25%, #1e293b 0% 50%) 50% / 14px 14px; }
-        .duck-icon-lg { width: 44px; height: 44px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
-        .duck-icon-sm { width: 28px; height: 28px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
+        .duck-icon-lg { width: 44px; height: 44px; }
+        .duck-icon-sm { width: 28px; height: 28px; }
+        .duck-icon-wrap { position: relative; display: inline-block; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.45)); }
+        .duck-icon-wrap::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 32% 22%, rgba(255,255,255,0.6), rgba(255,255,255,0) 45%), radial-gradient(circle at 68% 82%, rgba(0,0,0,0.32), rgba(0,0,0,0) 55%); mix-blend-mode: overlay; pointer-events: none; border-radius: 50%; }
+        .duck-icon-wrap.duck-icon-sm-wrap::before { content: ''; position: absolute; left: 50%; bottom: -3px; width: 60%; height: 6px; transform: translateX(-50%); background: radial-gradient(ellipse, rgba(0,0,0,0.45), transparent 70%); border-radius: 50%; }
 
-        /* ---- Race scenery & water effects ---- */
-        .race-scenery { background: linear-gradient(180deg,#38bdf8 0%,#7dd3fc 55%,#a7e8c5 100%); border-radius: 12px 12px 0 0; position: relative; overflow: hidden; height: 56px; }
+        /* ---- Race scenery: grass/dirt track with a subtle 3D tilt ---- */
+        .race-scenery { background: linear-gradient(180deg,#7dc4f0 0%,#bfe3ff 55%,#eaf6d8 100%); border-radius: 12px 12px 0 0; position: relative; overflow: hidden; height: 56px; }
         .race-sun { position:absolute; top:8px; right:22px; width:30px; height:30px; border-radius:50%; background:radial-gradient(circle,#fef9c3,#facc15); box-shadow:0 0 18px 6px rgba(250,204,21,0.6); }
         .race-cloud { position:absolute; background:#fff; border-radius:50px; opacity:0.85; }
         .race-cloud::before, .race-cloud::after { content:''; position:absolute; background:#fff; border-radius:50%; }
         @keyframes cloudDrift { from { transform: translateX(0); } to { transform: translateX(30px); } }
+        .race-3d-stage { perspective: 1000px; padding: 8px 0 22px; background: linear-gradient(180deg, #bfe3ff 0%, #eaf6d8 45%, #c9a568 100%); }
+        .race-3d-plane { transform: rotateX(14deg); transform-origin: 50% 100%; box-shadow: 0 20px 26px -10px rgba(0,0,0,0.45); border-radius: 10px; overflow: hidden; }
         .reed-strip { position:relative; height:14px; background:linear-gradient(180deg,#166534,#14532d); border-radius:0 0 8px 8px; overflow:hidden; }
         .reed { position:absolute; bottom:0; width:3px; background:#22c55e; border-radius:2px 2px 0 0; transform-origin:bottom center; animation: reedSway 2.6s ease-in-out infinite; }
         @keyframes reedSway { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
-        .lily-pad { position:absolute; border-radius:50%; background:radial-gradient(circle at 35% 35%, #4ade80, #15803d); opacity:0.55; animation: lilyFloat 4s ease-in-out infinite; }
-        @keyframes lilyFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-        .wave-overlay { position:absolute; inset:0; pointer-events:none; opacity:0.25; background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.5) 0 2px, transparent 2px 26px); background-size: 200% 100%; animation: waveFlow 3.5s linear infinite; }
+        .grass-tuft { position:absolute; width:12px; height:10px; }
+        .grass-tuft::before, .grass-tuft::after { content:''; position:absolute; bottom:0; width:3px; height:10px; background:#4ade80; border-radius:2px 2px 0 0; transform-origin:bottom center; animation: reedSway 3s ease-in-out infinite; }
+        .grass-tuft::before { left:0; transform: rotate(-8deg); }
+        .grass-tuft::after { left:6px; height:8px; background:#22c55e; transform: rotate(10deg); animation-delay: 0.4s; }
+        .dust-overlay { position:absolute; inset:0; pointer-events:none; opacity:0.16; background-image: repeating-linear-gradient(115deg, rgba(255,240,200,0.6) 0 2px, transparent 2px 26px); background-size: 200% 100%; animation: waveFlow 5s linear infinite; }
         @keyframes waveFlow { from { background-position-x: 0; } to { background-position-x: -160px; } }
-        .splash-particle { position:absolute; bottom:6px; width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.85); pointer-events:none; animation: splashPop 0.55s ease-out forwards; }
-        @keyframes splashPop { 0% { transform: translateY(0) scale(1); opacity:0.9; } 100% { transform: translateY(-10px) scale(0.2); opacity:0; } }
-        .duck-boost { filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)) drop-shadow(0 0 6px rgba(255,255,255,0.6)); }
+        .dust-puff { position:absolute; bottom:6px; width:6px; height:6px; border-radius:50%; background:radial-gradient(circle, rgba(214,180,120,0.9), rgba(214,180,120,0)); pointer-events:none; animation: dustPop 0.6s ease-out forwards; }
+        @keyframes dustPop { 0% { transform: translateY(0) scale(1); opacity:0.85; } 100% { transform: translateY(-9px) translateX(-6px) scale(1.6); opacity:0; } }
+        .duck-boost { filter: drop-shadow(0 3px 3px rgba(0,0,0,0.45)) drop-shadow(0 0 7px rgba(250,204,21,0.75)); }
 
         .icon-btn { display: inline-block; line-height: 1; }
         .icon-header-btn { background: rgba(31,41,55,0.8); border: 1px solid #374151; border-radius: 9999px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: background 0.15s, transform 0.1s; cursor:pointer; }
@@ -132,12 +139,35 @@
         .card-shoe .shoe-card:nth-child(2) { transform: rotate(-2deg) translate(0,1px); }
         .card-shoe .shoe-card:nth-child(3) { transform: rotate(5deg) translate(3px,0); }
         .card-shoe .shoe-box { position:absolute; bottom:-4px; left:-4px; right:-4px; height:14px; background:#78350f; border-radius:3px; border:1px solid #92400e; box-shadow:0 3px 4px rgba(0,0,0,0.4); }
-        .dealer-hand-sprite { position:absolute; top:-20px; left:50%; transform: translate(-50%, -14px) rotate(-25deg) scale(0.75); font-size:22px; opacity:0; pointer-events:none; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); z-index:6; }
+        .dealer-hand-sprite {
+            position:absolute; top:-26px; left:50%; width:26px; height:30px;
+            transform: translate(-50%, -14px) rotate(-25deg) scale(0.75);
+            opacity:0; pointer-events:none; z-index:6;
+            border-radius: 13px 13px 16px 16px;
+            background: linear-gradient(145deg, #ffffff 0%, #e2e8f0 55%, #94a3b8 100%);
+            box-shadow: 0 3px 5px rgba(0,0,0,0.45), inset -2px -3px 4px rgba(71,85,105,0.35), inset 2px 2px 3px rgba(255,255,255,0.9);
+            border: 1px solid #94a3b8;
+        }
+        .dealer-hand-sprite::before {
+            content:''; position:absolute; width:9px; height:13px; left:-6px; top:9px;
+            border-radius: 6px 3px 6px 6px;
+            background: linear-gradient(135deg,#ffffff,#cbd5e1 70%,#94a3b8);
+            border:1px solid #94a3b8;
+            box-shadow: inset 1px 1px 2px rgba(255,255,255,0.8);
+        }
+        .dealer-hand-sprite::after {
+            content:''; position:absolute; width:15px; height:21px; left:9px; top:-9px;
+            border-radius:2px;
+            background: repeating-linear-gradient(45deg,#1e3a8a,#1e3a8a 3px,#1d4ed8 3px,#1d4ed8 6px);
+            border:1px solid #1e3a8a;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            transform: rotate(14deg);
+        }
         .dealer-hand-sprite.pulling { animation: dealerHandPull 0.42s ease-in-out; }
         @keyframes dealerHandPull {
             0% { transform: translate(-50%, -14px) rotate(-25deg) scale(0.75); opacity: 0; }
-            35% { transform: translate(-50%, 8px) rotate(-6deg) scale(0.95); opacity: 1; }
-            62% { transform: translate(-50%, 2px) rotate(-12deg) scale(0.9); opacity: 1; }
+            35% { transform: translate(-50%, 10px) rotate(-6deg) scale(0.95); opacity: 1; }
+            62% { transform: translate(-50%, 3px) rotate(-12deg) scale(0.9); opacity: 1; }
             100% { transform: translate(-50%, -14px) rotate(-25deg) scale(0.75); opacity: 0; }
         }
 
@@ -165,6 +195,42 @@
         .roulette-num.green { background: #16a34a; }
         .roulette-num.picked { outline: 2px solid #facc15; transform: scale(1.12); box-shadow: 0 0 8px #facc15; }
         .roulette-num:active { transform: scale(0.92); }
+
+        /* ---- Slot Machine ---- */
+        .slot-cabinet { background: linear-gradient(160deg, #7c2d12, #451a03 60%, #1c0a00); border-radius: 18px; padding: 14px; box-shadow: 0 0 0 4px #92400e, 0 0 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.5); }
+        .slot-screen { background: #0f172a; border-radius: 10px; padding: 8px; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+        .slot-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+        .slot-reel-col { display: flex; flex-direction: column; gap: 4px; overflow: hidden; border-radius: 6px; }
+        .slot-cell { aspect-ratio: 1; background: linear-gradient(160deg, #1e293b, #0f172a); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid #334155; }
+        .slot-cell.win { box-shadow: 0 0 0 2px #facc15, 0 0 14px rgba(250,204,21,0.85); animation: slotCellPulse 0.6s ease-in-out infinite; background: linear-gradient(160deg, #4a3405, #1e1608); }
+        @keyframes slotCellPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+        .slot-reel-col.spinning .slot-cell { animation: slotBlur 0.08s linear infinite; }
+        @keyframes slotBlur { 0% { filter: blur(0px); } 50% { filter: blur(2.5px); } 100% { filter: blur(0px); } }
+        .jackpot-readout { font-family:'Orbitron',sans-serif; background:#1c0a00; border:2px solid #facc15; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 0 14px rgba(250,204,21,0.4); color:#fde68a; }
+        .slot-freespin-banner { animation: freespinPulse 1s ease-in-out infinite; }
+        @keyframes freespinPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+        .jackpot-overlay { position: fixed; inset: 0; z-index: 300; display:flex; align-items:center; justify-content:center; background: radial-gradient(circle, rgba(120,53,15,0.55), rgba(0,0,0,0.9)); overflow:hidden; }
+        .jackpot-coin { position:absolute; top:-40px; font-size: 24px; animation: coinFall linear forwards; }
+        @keyframes coinFall { 0% { transform: translateY(0) rotate(0deg); opacity:1; } 100% { transform: translateY(110vh) rotate(380deg); opacity:0.9; } }
+
+        /* ---- Shooter ---- */
+        .shooter-arena { position: relative; height: 320px; border-radius: 14px; overflow: hidden; background: radial-gradient(ellipse at 50% 25%, #1e3a5f, #0a1628 75%); border: 2px solid #1e293b; cursor: crosshair; touch-action: manipulation; }
+        .shooter-target { position: absolute; font-size: 32px; transform: translate(-50%, -50%); animation: shooterFloat 2.2s ease-in-out infinite, shooterFadeIn 0.22s ease-out; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.6)); cursor: pointer; user-select: none; }
+        @keyframes shooterFloat { 0%,100% { margin-top: 0px; } 50% { margin-top: -8px; } }
+        @keyframes shooterFadeIn { from { opacity:0; transform: translate(-50%,-50%) scale(0.5); } to { opacity:1; transform: translate(-50%,-50%) scale(1); } }
+        .shooter-target.dying { animation: shooterDie 0.32s ease-out forwards !important; pointer-events:none; }
+        @keyframes shooterDie { to { transform: translate(-50%,-50%) scale(1.7); opacity:0; } }
+        .shooter-target.escaping { animation: shooterEscape 0.4s ease-in forwards !important; pointer-events:none; }
+        @keyframes shooterEscape { to { opacity:0; transform: translate(-50%,-50%) scale(0.3); } }
+        .shooter-mult-badge { position:absolute; bottom:-13px; left:50%; transform:translateX(-50%); font-size:9px; background:rgba(0,0,0,0.65); color:#facc15; padding:1px 4px; border-radius:4px; font-weight:800; white-space:nowrap; }
+        .shooter-float-text { position:absolute; font-weight:800; font-family:'Orbitron',sans-serif; pointer-events:none; animation: shooterFloatText 0.9s ease-out forwards; z-index: 20; }
+        @keyframes shooterFloatText { 0% { transform: translate(-50%,0); opacity:1; } 100% { transform: translate(-50%,-42px); opacity:0; } }
+        .rage-bar-track { background:#1e293b; border-radius:9999px; height:14px; overflow:hidden; border:1px solid #334155; }
+        .rage-bar-fill { height:100%; background: linear-gradient(90deg,#f97316,#dc2626); transition: width 0.25s ease-out; }
+        .rage-bar-fill.full { background: linear-gradient(90deg,#facc15,#f97316,#dc2626); animation: rageFullPulse 0.6s ease-in-out infinite; }
+        @keyframes rageFullPulse { 0%,100% { filter:brightness(1); } 50% { filter:brightness(1.45); } }
+        .shooter-arena.overloaded { box-shadow: inset 0 0 0 3px #facc15, 0 0 24px rgba(250,204,21,0.6); }
+
     </style>
 </head>
 <body class="h-screen flex flex-col relative">
@@ -241,6 +307,16 @@
         </div>
     </div>
 
+    <div id="jackpotOverlay" class="jackpot-overlay hidden">
+        <div id="jackpotCoinsLayer" class="absolute inset-0 pointer-events-none"></div>
+        <div class="relative z-10 text-center px-4">
+            <div class="text-6xl mb-2">💰</div>
+            <div class="text-4xl md:text-5xl font-black text-yellow-300 mb-2" style="text-shadow:0 0 20px rgba(250,204,21,0.8);">HŨ NỔ RỒI!!!</div>
+            <div id="jackpotWonAmount" class="font-numbers text-3xl md:text-4xl font-bold text-white mb-6">$0.00</div>
+            <button onclick="closeJackpotOverlay()" class="px-8 py-3 btn-green font-bold text-lg rounded-xl">Tuyệt Vời!</button>
+        </div>
+    </div>
+
     <header class="glass-panel sticky top-0 z-50 flex justify-between items-center px-4 md:px-6 py-4">
         <div class="flex items-center gap-3">
             <button onclick="toggleLeaderboardModal()" class="text-gray-300 hover:text-white p-2 rounded-lg bg-gray-800/80 border border-gray-700 transition" title="Bảng Xếp Hạng">
@@ -293,7 +369,7 @@
             <div class="bg-gradient-to-r from-indigo-900 to-purple-900 rounded-2xl p-6 md:p-8 mb-4 flex justify-between items-center shadow-2xl relative overflow-hidden">
                 <div class="relative z-10">
                     <h2 class="text-3xl md:text-4xl font-bold mb-3">Chào mừng trở lại!</h2>
-                    <p class="text-gray-300 max-w-xl text-sm md:text-base">Sòng bạc giải trí — chỉ dùng tiền ảo, không có giá trị thực. Khám phá 7 trò chơi bên dưới!</p>
+                    <p class="text-gray-300 max-w-xl text-sm md:text-base">Sòng bạc giải trí — chỉ dùng tiền ảo, không có giá trị thực. Khám phá 9 trò chơi bên dưới!</p>
                 </div>
                 <div class="text-9xl absolute right-0 bottom-0 opacity-20 transform rotate-12 text-blue-400">💎</div>
             </div>
@@ -307,7 +383,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="col-span-1 lg:col-span-3">
                     <h3 class="text-2xl font-bold mb-6 border-b border-gray-700 pb-2">🎮 Danh mục trò chơi</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
 
                         <div class="glass-panel rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer group border border-transparent hover:border-red-500" onclick="showView('crash')">
                             <div class="h-32 bg-gray-900 relative overflow-hidden flex items-center justify-center">
@@ -393,6 +469,26 @@
                             <div class="p-4 bg-gray-800/50">
                                 <h4 class="text-xl font-bold mb-1">Roulette</h4>
                                 <p class="text-sm text-gray-400">Cược Màu, Chẵn/Lẻ hoặc Số cụ thể trên bàn quay chuẩn châu Âu.</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer group border border-transparent hover:border-fuchsia-500" onclick="showView('slots')">
+                            <div class="h-32 bg-gray-900 relative overflow-hidden flex items-center justify-center">
+                                <span class="inline-block text-5xl group-hover:scale-110 transition duration-300">🎰</span>
+                            </div>
+                            <div class="p-4 bg-gray-800/50">
+                                <h4 class="text-xl font-bold mb-1">Máy Xèng</h4>
+                                <p class="text-sm text-gray-400">5 cuộn, WILD, SCATTER nổ Free Spins, có Hũ Vàng tích lũy toàn server!</p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer group border border-transparent hover:border-lime-500" onclick="showView('shooter')">
+                            <div class="h-32 bg-gray-900 relative overflow-hidden flex items-center justify-center">
+                                <span class="inline-block text-5xl group-hover:-rotate-12 transition duration-300">🐉</span>
+                            </div>
+                            <div class="p-4 bg-gray-800/50">
+                                <h4 class="text-xl font-bold mb-1">Bắn Cá</h4>
+                                <p class="text-sm text-gray-400">Săn từ cá nhỏ đến Thủy Quái Leviathan huyền thoại, dồn thanh QUÁ TẢI để x2 thưởng!</p>
                             </div>
                         </div>
 
@@ -550,19 +646,23 @@
                     <p class="text-gray-400">Chọn một con vịt để đặt cược. Nếu vịt bạn chọn về nhất, bạn nhận x4 số tiền cược — mức thưởng cao nhất trong các trò chơi tại đây.</p>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="duckSelectors"></div>
-                <div class="mb-8 rounded-xl overflow-hidden border border-gray-700 shadow-lg">
+                <div class="mb-8">
                     <div class="race-scenery">
                         <div class="race-sun"></div>
                         <div class="race-cloud" style="width:44px;height:15px;top:9px;left:14%;"></div>
                         <div class="race-cloud" style="width:32px;height:11px;top:19px;left:38%;"></div>
                         <div class="race-cloud" style="width:36px;height:12px;top:12px;left:68%;"></div>
                     </div>
-                    <div class="bg-gray-900 p-4 relative">
-                        <div class="lily-pad" style="width:20px;height:10px;top:12px;left:22%;"></div>
-                        <div class="lily-pad" style="width:14px;height:7px;top:60px;left:58%;animation-delay:1.2s;"></div>
-                        <div class="lily-pad" style="width:16px;height:8px;top:100px;left:78%;animation-delay:2.1s;"></div>
-                        <div class="absolute right-[20px] top-0 bottom-0 w-2 finish-flag z-0"></div>
-                        <div id="tracksContainer" class="relative z-10 flex flex-col gap-4"></div>
+                    <div class="race-3d-stage">
+                        <div class="race-3d-plane">
+                            <div class="bg-gray-900 p-4 relative">
+                                <div class="grass-tuft" style="top:10px;left:20%;"></div>
+                                <div class="grass-tuft" style="top:58px;left:56%;"></div>
+                                <div class="grass-tuft" style="top:96px;left:76%;"></div>
+                                <div class="absolute right-[20px] top-0 bottom-0 w-2 finish-flag z-0"></div>
+                                <div id="tracksContainer" class="relative z-10 flex flex-col gap-4"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="reed-strip" id="reedStrip"></div>
                 </div>
@@ -636,7 +736,7 @@
                         <div class="card-shoe" title="Bộ bài">
                             <div class="shoe-card"></div><div class="shoe-card"></div><div class="shoe-card"></div>
                             <div class="shoe-box"></div>
-                            <div id="dealerHandSprite" class="dealer-hand-sprite" aria-hidden="true">🤚</div>
+                            <div id="dealerHandSprite" class="dealer-hand-sprite" aria-hidden="true"></div>
                         </div>
                     </div>
                     <div id="bjDealerCards" class="flex gap-1 justify-center flex-wrap min-h-[90px] items-center" style="perspective:700px;"></div>
@@ -719,6 +819,82 @@
             </div>
         </div>
 
+        <div id="slotsView" class="max-w-5xl mx-auto hidden">
+            <button onclick="showView('home')" class="mb-4 text-gray-400 hover:text-white flex items-center gap-2">← Về sảnh chính</button>
+            <div class="max-w-2xl mx-auto">
+                <div class="text-center mb-4">
+                    <h2 class="text-3xl font-bold text-fuchsia-300 mb-1">🎰 Máy Xèng Nổ Hũ</h2>
+                    <p class="text-gray-400 text-sm">5 cuộn × 3 hàng, 9 đường thắng. WILD thay thế mọi biểu tượng, 3+ SCATTER nổ Free Spins!</p>
+                </div>
+                <div class="jackpot-readout rounded-xl px-4 py-2 text-center mb-4">
+                    <div class="text-[10px] uppercase tracking-widest opacity-80">💰 Hũ Vàng Toàn Server</div>
+                    <div id="jackpotPoolDisplay" class="font-numbers text-2xl font-bold">$0.00</div>
+                </div>
+                <div class="slot-cabinet">
+                    <div class="slot-screen">
+                        <div id="slotGrid" class="slot-grid"></div>
+                    </div>
+                    <div id="slotFreeSpinBanner" class="hidden slot-freespin-banner text-center mt-3 bg-purple-700 text-white font-bold py-1.5 rounded-lg text-sm">🎉 FREE SPINS: <span id="slotFreeSpinsLeft">0</span> lượt còn lại!</div>
+                    <div id="slotMessage" class="text-center text-lg font-bold h-8 mt-3 text-yellow-200"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-black/30 p-4 rounded-xl mt-3">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm text-gray-300">Tiền cược mỗi vòng ($)</label>
+                            <div class="flex bg-gray-900 rounded-lg border border-gray-700 p-1">
+                                <input type="number" id="slotsBetAmount" value="10" step="0.01" min="1" onblur="sanitizeBetInput(this)" class="bg-transparent w-full outline-none text-xl font-numbers px-2 text-white">
+                            </div>
+                            <div class="grid grid-cols-5 gap-1 mt-1">
+                                <button type="button" onclick="setQuickBet('slotsBetAmount',0.10)" class="quick-bet-btn">10%</button>
+                                <button type="button" onclick="setQuickBet('slotsBetAmount',0.25)" class="quick-bet-btn">25%</button>
+                                <button type="button" onclick="setQuickBet('slotsBetAmount',0.50)" class="quick-bet-btn">50%</button>
+                                <button type="button" onclick="setQuickBet('slotsBetAmount',0.75)" class="quick-bet-btn">75%</button>
+                                <button type="button" onclick="setQuickBet('slotsBetAmount',1)" class="quick-bet-btn quick-bet-max">TẤT CẢ</button>
+                            </div>
+                        </div>
+                        <div class="flex items-end">
+                            <button id="btnSlotsSpin" onclick="slotsSpin()" class="w-full h-12 btn-green text-xl font-bold rounded-lg uppercase tracking-wider">🎰 QUAY</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="shooterView" class="max-w-5xl mx-auto hidden">
+            <button onclick="showView('home')" class="mb-4 text-gray-400 hover:text-white flex items-center gap-2">← Về sảnh chính</button>
+            <div class="max-w-2xl mx-auto glass-panel rounded-xl p-6 border border-lime-900/50">
+                <div class="text-center mb-4">
+                    <h2 class="text-3xl font-bold text-lime-300 mb-1">🐉 Bắn Cá Đổi Thưởng</h2>
+                    <p class="text-gray-400 text-sm">Mỗi lần bắn (kể cả trượt) tốn đúng 1 mức cược. Hạ cá ăn Cược × Hệ số — càng cá lớn, càng hiếm và ăn càng đậm, kể cả Thủy Quái Leviathan huyền thoại! Bắn trúng liên tục để đầy thanh QUÁ TẢI, x2 thưởng trong 5 giây!</p>
+                </div>
+                <div class="mb-2">
+                    <div class="flex justify-between items-center mb-1 text-xs text-gray-400">
+                        <span>Thanh QUÁ TẢI</span>
+                        <span id="rageStatusText">0%</span>
+                    </div>
+                    <div class="rage-bar-track"><div id="rageBarFill" class="rage-bar-fill" style="width:0%"></div></div>
+                </div>
+                <div id="shooterArena" class="shooter-arena mb-3" onclick="shooterFire(event)"></div>
+                <div id="shooterMessage" class="text-center text-base font-bold h-7 mb-2"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-800 p-4 rounded-xl">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm text-gray-400">Tiền cược mỗi viên đạn ($)</label>
+                        <div class="flex bg-gray-900 rounded-lg border border-gray-700 p-1">
+                            <input type="number" id="shooterBetAmount" value="5" step="0.01" min="1" onblur="sanitizeBetInput(this)" class="bg-transparent w-full outline-none text-xl font-numbers px-2 text-white">
+                        </div>
+                        <div class="grid grid-cols-5 gap-1 mt-1">
+                            <button type="button" onclick="setQuickBet('shooterBetAmount',0.10)" class="quick-bet-btn">10%</button>
+                            <button type="button" onclick="setQuickBet('shooterBetAmount',0.25)" class="quick-bet-btn">25%</button>
+                            <button type="button" onclick="setQuickBet('shooterBetAmount',0.50)" class="quick-bet-btn">50%</button>
+                            <button type="button" onclick="setQuickBet('shooterBetAmount',0.75)" class="quick-bet-btn">75%</button>
+                            <button type="button" onclick="setQuickBet('shooterBetAmount',1)" class="quick-bet-btn quick-bet-max">TẤT CẢ</button>
+                        </div>
+                    </div>
+                    <div class="flex items-end text-xs text-gray-400">
+                        <div class="w-full bg-gray-900/60 rounded-lg p-2.5 text-center">Bấm/chạm thẳng vào cá trên màn hình để bắn.<br>Trượt vẫn mất tiền cược — ngắm cho kỹ!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <div id="dailyModal" class="fixed inset-0 modal-overlay z-[100] flex items-center justify-center hidden">
@@ -744,8 +920,8 @@
                 createdAt: null, emergencySupportLastClaim: null,
                 stats: {
                     totalWagered: 0, totalWon: 0, totalLost: 0, gamesPlayed: 0, bestCrashMult: 0,
-                    wins: { crash: 0, dice: 0, wheel: 0, race: 0, mines: 0, blackjack: 0, roulette: 0 },
-                    played: { crash: 0, dice: 0, wheel: 0, race: 0, mines: 0, blackjack: 0, roulette: 0 }
+                    wins: { crash: 0, dice: 0, wheel: 0, race: 0, mines: 0, blackjack: 0, roulette: 0, slots: 0, shooter: 0 },
+                    played: { crash: 0, dice: 0, wheel: 0, race: 0, mines: 0, blackjack: 0, roulette: 0, slots: 0, shooter: 0 }
                 },
                 history: []
             };
@@ -852,9 +1028,11 @@
             { id: 'diamond_digger', name: 'Thợ Đào Kim Cương', icon: '💎', check: s => s.stats.wins.mines >= 10 },
             { id: 'blackjack_ace', name: 'Tay Bài Xì Dách', icon: '🃏', check: s => s.stats.wins.blackjack >= 10 },
             { id: 'roulette_master', name: 'Cao Thủ Roulette', icon: '🎡', check: s => s.stats.wins.roulette >= 15 },
+            { id: 'jackpot_hunter', name: 'Săn Hũ Vàng', icon: '🎰', check: s => s.stats.wins.slots >= 20 },
+            { id: 'sharpshooter', name: 'Xạ Thủ Săn Cá', icon: '🎯', check: s => s.stats.wins.shooter >= 30 },
             { id: 'legend', name: 'Huyền Thoại Sòng Bạc', icon: '👑', check: s => s.stats.gamesPlayed >= 200 }
         ];
-        const GAME_NAMES = { crash: 'Tên Lửa', dice: 'Xúc Xắc', wheel: 'Vòng Quay', race: 'Đua Vịt', mines: 'Đào Kim Cương', blackjack: 'Xì Dách', roulette: 'Roulette' };
+        const GAME_NAMES = { crash: 'Tên Lửa', dice: 'Xúc Xắc', wheel: 'Vòng Quay', race: 'Đua Vịt', mines: 'Đào Kim Cương', blackjack: 'Xì Dách', roulette: 'Roulette', slots: 'Máy Xèng', shooter: 'Bắn Cá' };
 
         function fmt(n) { const sign = n < 0 ? '-' : ''; return sign + '$' + Math.abs(n).toFixed(2); }
 
@@ -1123,6 +1301,7 @@
                     initUI();
                     refreshLeaderboard();
                     document.getElementById('authModal').classList.add('hidden');
+                    saveLeaderboardEntry();
                 }
             }
         });
@@ -1182,6 +1361,7 @@
             setupDuckRace();
             setupMinesGrid();
             setupRoulette();
+            setupSlots();
             bjReset();
             bjRender();
         }
@@ -1268,11 +1448,12 @@
         };
 
         window.showView = function (viewId) {
-            ['home', 'crash', 'dice', 'wheel', 'race', 'mines', 'blackjack', 'roulette'].forEach(v => document.getElementById(v + 'View').classList.add('hidden'));
+            ['home', 'crash', 'dice', 'wheel', 'race', 'mines', 'blackjack', 'roulette', 'slots', 'shooter'].forEach(v => document.getElementById(v + 'View').classList.add('hidden'));
             document.getElementById(viewId + 'View').classList.remove('hidden');
             if (viewId === 'crash') initCrashCanvas();
             if (viewId === 'wheel') document.getElementById('wheelMessage').innerText = "";
             if (viewId === 'roulette') document.getElementById('rouletteMessage').innerText = "";
+            if (viewId === 'shooter') shooterStartSpawning(); else shooterStopSpawning();
         };
 
         window.validateBet = function (amount) {
@@ -1770,24 +1951,24 @@
             ducksData.forEach(duck => {
                 selectors.innerHTML +=
                     '<div id="duckCard_' + duck.id + '" class="glass-panel p-3 rounded-lg text-center cursor-pointer border-2 border-gray-600 hover:border-white/40 transition opacity-75" onclick="selectDuck(' + duck.id + ')">' +
-                    '<div class="flex justify-center mb-2">' + duckIconSVG(duck.type, duck.color, 'duck-icon-lg') + '</div>' +
+                    '<div class="flex justify-center mb-2"><div class="duck-icon-wrap">' + duckIconSVG(duck.type, duck.color, 'duck-icon-lg') + '</div></div>' +
                     '<div class="font-bold text-sm truncate" style="color:' + duck.color + '">' + duck.name + '</div></div>';
                 tracks.innerHTML +=
                     '<div class="duck-track h-12 rounded-lg relative overflow-hidden flex items-center px-2 border-y border-white/10">' +
-                    '<div class="wave-overlay"></div>' +
+                    '<div class="dust-overlay"></div>' +
                     '<div class="absolute left-0 top-0 bottom-0 w-1" style="background:' + duck.color + '"></div>' +
-                    '<span class="absolute left-3 text-xs text-cyan-100/70 font-bold z-0">Làn ' + duck.id + '</span>' +
-                    '<div id="duckSprite_' + duck.id + '" class="duck absolute left-[0%] z-10" style="transition: left 0.4s linear;">' + duckIconSVG(duck.type, duck.color, 'duck-icon-sm') + '</div></div>';
+                    '<span class="absolute left-3 text-xs text-amber-100/80 font-bold z-0">Làn ' + duck.id + '</span>' +
+                    '<div id="duckSprite_' + duck.id + '" class="duck absolute left-[0%] z-10" style="transition: left 0.4s linear;"><div class="duck-icon-wrap duck-icon-sm-wrap">' + duckIconSVG(duck.type, duck.color, 'duck-icon-sm') + '</div></div></div>';
             });
             buildReedStrip();
         }
-        function spawnSplash(spriteEl) {
+        function spawnDust(spriteEl) {
             const lane = spriteEl.parentElement;
             if (!lane) return;
             const p = document.createElement('div');
-            p.className = 'splash-particle';
+            p.className = 'dust-puff';
             p.style.left = spriteEl.style.left;
-            p.style.bottom = (6 + Math.random() * 6) + 'px';
+            p.style.bottom = (5 + Math.random() * 4) + 'px';
             lane.appendChild(p);
             p.addEventListener('animationend', () => p.remove());
         }
@@ -1830,7 +2011,7 @@
                     if (positions[d.id] > leaderPos) { leaderPos = positions[d.id]; leaderId = d.id; }
                     const sprite = document.getElementById('duckSprite_' + d.id);
                     sprite.style.left = positions[d.id] + '%';
-                    if (tick % 2 === 0) spawnSplash(sprite);
+                    if (tick % 2 === 0) spawnDust(sprite);
                 });
                 ducksData.forEach(d => document.getElementById('duckSprite_' + d.id).classList.toggle('duck-boost', d.id === leaderId));
                 if (finished) { clearInterval(raceLoop); setTimeout(() => finishRace(winnerId, betAmount), 500); }
@@ -2402,6 +2583,358 @@
             const winningNumber = ROULETTE_WHEEL_ORDER[Math.floor(Math.random() * ROULETTE_WHEEL_ORDER.length)];
             runRouletteSpin(winningNumber, betAmount, selection);
         };
+
+        // =====================================================================
+        // GAME 8: MÁY XÈNG (SLOT MACHINE) — 5x3 grid, 9 paylines, WILD/SCATTER,
+        // Free Spins, and a server-wide progressive Jackpot pool kept in shared
+        // storage. runSlotsSpin(grid, bet, isFreeSpin) always takes an explicit
+        // grid, so a future backend result could replay an exact outcome.
+        // =====================================================================
+        const SLOT_SYMBOLS = [
+            { id: 'cherry', icon: '🍒', weight: 22, pay: { 3: 0.4, 4: 1, 5: 3 } },
+            { id: 'lemon', icon: '🍋', weight: 22, pay: { 3: 0.4, 4: 1, 5: 3 } },
+            { id: 'grape', icon: '🍇', weight: 17, pay: { 3: 0.5, 4: 1.5, 5: 4 } },
+            { id: 'bell', icon: '🔔', weight: 13, pay: { 3: 0.8, 4: 2.5, 5: 8 } },
+            { id: 'gem', icon: '💎', weight: 8, pay: { 3: 1.5, 4: 5, 5: 15 } },
+            { id: 'seven', icon: '7️⃣', weight: 4, pay: { 3: 3, 4: 12, 5: 50 } },
+            { id: 'wild', icon: '🃏', weight: 5, pay: { 3: 5, 4: 20, 5: 100 } },
+            { id: 'scatter', icon: '⭐', weight: 4, pay: {} }
+        ];
+        const SLOT_TOTAL_WEIGHT = SLOT_SYMBOLS.reduce((s, x) => s + x.weight, 0);
+        const SLOT_PAYLINES = [
+            [1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [2, 2, 2, 2, 2],
+            [0, 1, 2, 1, 0], [2, 1, 0, 1, 2], [0, 0, 1, 2, 2],
+            [2, 2, 1, 0, 0], [1, 0, 0, 0, 1], [1, 2, 2, 2, 1]
+        ];
+        const SLOT_JACKPOT_CHANCE = 0.0018;
+        const SLOT_JACKPOT_SEED = 500;
+        const SLOT_JACKPOT_CONTRIB_PCT = 0.01;
+        let slotsSpinning = false, slotFreeSpinsLeft = 0, slotFreeSpinsBet = 0, jackpotPoolCache = SLOT_JACKPOT_SEED;
+
+        function slotRandomSymbol() {
+            let r = Math.random() * SLOT_TOTAL_WEIGHT;
+            for (const s of SLOT_SYMBOLS) { if (r < s.weight) return s.id; r -= s.weight; }
+            return SLOT_SYMBOLS[0].id;
+        }
+        function slotSymbolById(id) { return SLOT_SYMBOLS.find(s => s.id === id); }
+        function generateSlotGrid() {
+            const grid = [];
+            for (let c = 0; c < 5; c++) { const col = []; for (let r = 0; r < 3; r++) col.push(slotRandomSymbol()); grid.push(col); }
+            return grid;
+        }
+        async function loadJackpotPool() {
+            const r = await storageGetSafe('slot-jackpot-pool', true);
+            if (r) { const v = parseFloat(r.value); if (!isNaN(v) && v > 0) { jackpotPoolCache = v; return v; } }
+            return jackpotPoolCache;
+        }
+        async function saveJackpotPool(value) {
+            jackpotPoolCache = value;
+            await storageSetRetry('slot-jackpot-pool', String(value), true);
+            updateJackpotDisplay();
+        }
+        function updateJackpotDisplay() {
+            const el = document.getElementById('jackpotPoolDisplay');
+            if (el) el.innerText = fmt(jackpotPoolCache);
+        }
+        function setupSlots() {
+            const grid = document.getElementById('slotGrid');
+            if (grid && !grid.dataset.built) {
+                let html = '';
+                for (let c = 0; c < 5; c++) {
+                    html += '<div class="slot-reel-col" id="slotCol_' + c + '">';
+                    for (let r = 0; r < 3; r++) html += '<div class="slot-cell" id="slotCell_' + c + '_' + r + '">🍒</div>';
+                    html += '</div>';
+                }
+                grid.innerHTML = html;
+                grid.dataset.built = '1';
+            }
+            loadJackpotPool().then(updateJackpotDisplay);
+        }
+        function setSlotCell(c, r, icon) {
+            const cell = document.getElementById('slotCell_' + c + '_' + r);
+            if (cell) { cell.textContent = icon; cell.classList.remove('win'); }
+        }
+        function evaluateSlotLine(line, grid) {
+            const symbols = line.map((row, c) => grid[c][row]);
+            let base = null;
+            for (const s of symbols) { if (s !== 'wild') { base = s; break; } }
+            if (base === null) base = 'wild';
+            if (base === 'scatter') return null;
+            let matchLen = 0;
+            for (const s of symbols) { if (s === base || s === 'wild') matchLen++; else break; }
+            const symDef = slotSymbolById(base);
+            if (matchLen >= 3 && symDef.pay[matchLen]) return { symbol: base, matchLen, pay: symDef.pay[matchLen] };
+            return null;
+        }
+        function evaluateSlotGrid(grid, bet) {
+            let totalWin = 0;
+            const winningCells = new Set();
+            SLOT_PAYLINES.forEach(line => {
+                const res = evaluateSlotLine(line, grid);
+                if (res) {
+                    totalWin += bet * res.pay;
+                    for (let c = 0; c < res.matchLen; c++) winningCells.add(c + '_' + line[c]);
+                }
+            });
+            let scatterCount = 0;
+            grid.forEach(col => col.forEach(s => { if (s === 'scatter') scatterCount++; }));
+            if (scatterCount >= 3) grid.forEach((col, c) => col.forEach((s, r) => { if (s === 'scatter') winningCells.add(c + '_' + r); }));
+            return { totalWin, winningCells, scatterCount, freeSpinsWon: scatterCount >= 3 ? 8 : 0 };
+        }
+        function runSlotsSpin(grid, bet, isFreeSpin) {
+            document.querySelectorAll('.slot-reel-col').forEach(c => c.classList.add('spinning'));
+            for (let c = 0; c < 5; c++) {
+                const spinTimer = setInterval(() => { for (let r = 0; r < 3; r++) setSlotCell(c, r, slotSymbolById(slotRandomSymbol()).icon); }, 60);
+                setTimeout(() => {
+                    clearInterval(spinTimer);
+                    const colEl = document.getElementById('slotCol_' + c);
+                    if (colEl) colEl.classList.remove('spinning');
+                    for (let r = 0; r < 3; r++) setSlotCell(c, r, slotSymbolById(grid[c][r]).icon);
+                    SoundManager.cardFlip();
+                }, 550 + c * 260);
+            }
+            setTimeout(() => finishSlotsSpin(grid, bet, isFreeSpin), 550 + 4 * 260 + 350);
+        }
+        function finishSlotsSpin(grid, bet, isFreeSpin) {
+            const result = evaluateSlotGrid(grid, bet);
+            result.winningCells.forEach(key => {
+                const parts = key.split('_');
+                const cell = document.getElementById('slotCell_' + parts[0] + '_' + parts[1]);
+                if (cell) cell.classList.add('win');
+            });
+            const msgEl = document.getElementById('slotMessage');
+            if (result.totalWin > 0) {
+                window.userState.balance += result.totalWin;
+                recordResult('slots', result.totalWin - (isFreeSpin ? 0 : bet), (isFreeSpin ? 'Free Spin thắng ' : 'Thắng ') + fmt(result.totalWin));
+                SoundManager.coin(); if (result.totalWin >= bet * 10) SoundManager.bigWin(); else SoundManager.win();
+                msgEl.innerText = '🎉 Trúng thưởng! +' + fmt(result.totalWin);
+                msgEl.className = 'text-center text-lg font-bold h-8 mt-3 text-green-400 shake-anim';
+            } else {
+                if (!isFreeSpin) recordResult('slots', -bet, 'Không trúng');
+                msgEl.innerText = isFreeSpin ? 'Free Spin: không trúng.' : 'Chưa trúng, quay tiếp nhé!';
+                msgEl.className = 'text-center text-lg font-bold h-8 mt-3 text-gray-400';
+                SoundManager.lose();
+            }
+            syncUserData();
+
+            if (result.freeSpinsWon > 0) {
+                slotFreeSpinsLeft += result.freeSpinsWon;
+                slotFreeSpinsBet = bet;
+                document.getElementById('slotFreeSpinsLeft').innerText = slotFreeSpinsLeft;
+                document.getElementById('slotFreeSpinBanner').classList.remove('hidden');
+                SoundManager.bigWin();
+                showCustomModal("FREE SPINS!", "3+ biểu tượng SCATTER ⭐ xuất hiện — bạn nhận thêm " + result.freeSpinsWon + " lượt quay miễn phí!", "success");
+            }
+
+            if (!isFreeSpin && Math.random() < SLOT_JACKPOT_CHANCE) setTimeout(() => triggerJackpot(), 500);
+
+            slotsSpinning = false;
+            if (slotFreeSpinsLeft > 0) {
+                document.getElementById('btnSlotsSpin').disabled = true;
+                document.getElementById('slotsBetAmount').disabled = true;
+                setTimeout(() => autoPlayFreeSpin(), 900);
+            } else {
+                document.getElementById('btnSlotsSpin').disabled = false;
+                document.getElementById('slotsBetAmount').disabled = false;
+                document.getElementById('slotFreeSpinBanner').classList.add('hidden');
+            }
+        }
+        function autoPlayFreeSpin() {
+            if (slotFreeSpinsLeft <= 0 || slotsSpinning) return;
+            slotFreeSpinsLeft--;
+            document.getElementById('slotFreeSpinsLeft').innerText = slotFreeSpinsLeft;
+            slotsSpinning = true;
+            runSlotsSpin(generateSlotGrid(), slotFreeSpinsBet, true);
+        }
+        window.slotsSpin = function () {
+            if (slotsSpinning) return;
+            let betAmount = parseFloat(document.getElementById('slotsBetAmount').value);
+            if (!validateBet(betAmount)) return;
+            window.userState.balance -= betAmount; recordWager(betAmount); syncUserData();
+            SoundManager.chip();
+            slotsSpinning = true;
+            document.getElementById('btnSlotsSpin').disabled = true;
+            document.getElementById('slotsBetAmount').disabled = true;
+            document.getElementById('slotMessage').innerText = '';
+            saveJackpotPool(jackpotPoolCache + betAmount * SLOT_JACKPOT_CONTRIB_PCT);
+            runSlotsSpin(generateSlotGrid(), betAmount, false);
+        };
+        function triggerJackpot() {
+            const wonAmount = jackpotPoolCache;
+            window.userState.balance += wonAmount;
+            recordResult('slots', wonAmount, 'HŨ NỔ!');
+            syncUserData();
+            saveJackpotPool(SLOT_JACKPOT_SEED);
+            document.getElementById('jackpotWonAmount').innerText = fmt(wonAmount);
+            document.getElementById('jackpotOverlay').classList.remove('hidden');
+            spawnJackpotCoins();
+            SoundManager.bigWin();
+        }
+        function spawnJackpotCoins() {
+            const layer = document.getElementById('jackpotCoinsLayer');
+            if (!layer) return;
+            layer.innerHTML = '';
+            const icons = ['🪙', '💰', '💵'];
+            for (let i = 0; i < 40; i++) {
+                const c = document.createElement('div');
+                c.className = 'jackpot-coin';
+                c.textContent = icons[Math.floor(Math.random() * icons.length)];
+                c.style.left = Math.random() * 100 + '%';
+                c.style.animationDuration = (1.6 + Math.random() * 1.6) + 's';
+                c.style.animationDelay = (Math.random() * 1.2) + 's';
+                layer.appendChild(c);
+            }
+        }
+        window.closeJackpotOverlay = function () {
+            document.getElementById('jackpotOverlay').classList.add('hidden');
+            document.getElementById('jackpotCoinsLayer').innerHTML = '';
+        };
+
+        // =====================================================================
+        // GAME 9: BẮN CÁ (SHOOTER) — every click inside the arena fires a
+        // bullet at the current bet amount, hit or miss. The Rage meter fills
+        // on hits and grants a temporary 2x payout window once full.
+        // =====================================================================
+        const SHOOTER_TARGETS = [
+            { id: 'minnow', icon: '🐟', mult: 2, weight: 38, life: 2200 },
+            { id: 'tropical', icon: '🐠', mult: 3, weight: 25, life: 2000 },
+            { id: 'blowfish', icon: '🐡', mult: 8, weight: 17, life: 1800 },
+            { id: 'octopus', icon: '🐙', mult: 15, weight: 9, life: 1600 },
+            { id: 'shark', icon: '🦈', mult: 60, weight: 6, life: 1500 },
+            { id: 'whale', icon: '🐋', mult: 150, weight: 3.5, life: 1300 },
+            { id: 'leviathan', icon: '🐉', mult: 600, weight: 0.5, life: 1100 }
+        ];
+        const SHOOTER_TOTAL_WEIGHT = SHOOTER_TARGETS.reduce((s, x) => s + x.weight, 0);
+        const RAGE_MAX = 10, RAGE_DECAY_MS = 6000;
+        let shooterSpawnTimer = null, shooterTargets = {}, shooterTargetSeq = 0;
+        let rageValue = 0, rageDecayTimer = null, overloadActive = false, overloadTimer = null;
+
+        function shooterPickTarget() {
+            let r = Math.random() * SHOOTER_TOTAL_WEIGHT;
+            for (const t of SHOOTER_TARGETS) { if (r < t.weight) return t; r -= t.weight; }
+            return SHOOTER_TARGETS[0];
+        }
+        window.shooterStartSpawning = function () {
+            if (shooterSpawnTimer) return;
+            const arena = document.getElementById('shooterArena');
+            if (!arena) return;
+            shooterSpawnTimer = setInterval(shooterSpawnOne, 750);
+            shooterSpawnOne();
+        };
+        window.shooterStopSpawning = function () {
+            if (shooterSpawnTimer) { clearInterval(shooterSpawnTimer); shooterSpawnTimer = null; }
+            Object.values(shooterTargets).forEach(d => clearTimeout(d.timer));
+            shooterTargets = {};
+            const arena = document.getElementById('shooterArena');
+            if (arena) arena.innerHTML = '';
+        };
+        function shooterSpawnOne() {
+            const arena = document.getElementById('shooterArena');
+            if (!arena || Object.keys(shooterTargets).length >= 6) return;
+            const def = shooterPickTarget();
+            const id = 'st_' + (shooterTargetSeq++);
+            const left = 10 + Math.random() * 80;
+            const top = 12 + Math.random() * 68;
+            const el = document.createElement('div');
+            el.className = 'shooter-target';
+            el.id = id;
+            el.style.left = left + '%';
+            el.style.top = top + '%';
+            el.innerHTML = def.icon + '<div class="shooter-mult-badge">x' + def.mult + '</div>';
+            arena.appendChild(el);
+            const timer = setTimeout(() => shooterExpire(id), def.life);
+            shooterTargets[id] = { def: def, timer: timer };
+        }
+        function shooterExpire(id) {
+            const data = shooterTargets[id];
+            if (!data) return;
+            const el = document.getElementById(id);
+            if (el) { el.classList.add('escaping'); setTimeout(() => el.remove(), 420); }
+            delete shooterTargets[id];
+        }
+        window.shooterFire = function (evt) {
+            const arena = document.getElementById('shooterArena');
+            let betAmount = parseFloat(document.getElementById('shooterBetAmount').value);
+            if (!validateBet(betAmount)) return;
+            window.userState.balance -= betAmount; recordWager(betAmount);
+            SoundManager.chip();
+
+            const targetEl = evt.target.closest('.shooter-target');
+            const rect = arena.getBoundingClientRect();
+            const clickX = evt.clientX - rect.left;
+            const clickY = evt.clientY - rect.top;
+
+            if (targetEl && shooterTargets[targetEl.id]) {
+                const id = targetEl.id;
+                const data = shooterTargets[id];
+                clearTimeout(data.timer);
+                delete shooterTargets[id];
+                const overloadBonus = overloadActive ? 2 : 1;
+                const payout = betAmount * data.def.mult * overloadBonus;
+                window.userState.balance += payout;
+                recordResult('shooter', payout - betAmount, 'Hạ ' + data.def.icon + ' x' + data.def.mult + (overloadActive ? ' (QUÁ TẢI x2)' : ''));
+                syncUserData();
+                targetEl.classList.add('dying');
+                setTimeout(() => targetEl.remove(), 380);
+                SoundManager.coin(); if (data.def.mult >= 50) SoundManager.bigWin(); else SoundManager.win();
+                shooterFloatText(clickX, clickY, '+' + fmt(payout), '#4ade80');
+                bumpRage();
+                const msgEl = document.getElementById('shooterMessage');
+                msgEl.innerText = '🎯 Hạ gục ' + data.def.icon + '! +' + fmt(payout);
+                msgEl.className = 'text-center text-base font-bold h-7 mb-2 text-green-400';
+            } else {
+                recordResult('shooter', -betAmount, 'Trượt');
+                syncUserData();
+                SoundManager.lose();
+                shooterFloatText(clickX, clickY, 'TRƯỢT', '#ef4444');
+                const msgEl = document.getElementById('shooterMessage');
+                msgEl.innerText = '💨 Trượt rồi! -' + fmt(betAmount);
+                msgEl.className = 'text-center text-base font-bold h-7 mb-2 text-red-400';
+                decayRageOnMiss();
+            }
+        };
+        function shooterFloatText(x, y, text, color) {
+            const arena = document.getElementById('shooterArena');
+            if (!arena) return;
+            const el = document.createElement('div');
+            el.className = 'shooter-float-text';
+            el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.color = color; el.style.fontSize = '16px';
+            el.textContent = text;
+            arena.appendChild(el);
+            el.addEventListener('animationend', () => el.remove());
+        }
+        function bumpRage() {
+            rageValue = Math.min(RAGE_MAX, rageValue + 1);
+            updateRageBar();
+            if (rageValue >= RAGE_MAX && !overloadActive) triggerOverload();
+            if (rageDecayTimer) clearTimeout(rageDecayTimer);
+            rageDecayTimer = setTimeout(() => { rageValue = Math.max(0, rageValue - 1); updateRageBar(); }, RAGE_DECAY_MS);
+        }
+        function decayRageOnMiss() { rageValue = Math.max(0, rageValue - 2); updateRageBar(); }
+        function updateRageBar() {
+            const fill = document.getElementById('rageBarFill');
+            const text = document.getElementById('rageStatusText');
+            if (!fill) return;
+            const pct = Math.round((rageValue / RAGE_MAX) * 100);
+            fill.style.width = pct + '%';
+            fill.classList.toggle('full', rageValue >= RAGE_MAX);
+            if (text) text.innerText = overloadActive ? 'QUÁ TẢI x2!' : (pct + '%');
+        }
+        function triggerOverload() {
+            overloadActive = true;
+            const arena = document.getElementById('shooterArena');
+            if (arena) arena.classList.add('overloaded');
+            updateRageBar();
+            SoundManager.bigWin();
+            showCustomModal("QUÁ TẢI KÍCH HOẠT!", "Trong 5 giây tới, mọi con cá bị hạ sẽ nhận thưởng x2!", "success");
+            if (overloadTimer) clearTimeout(overloadTimer);
+            overloadTimer = setTimeout(() => {
+                overloadActive = false;
+                rageValue = 0;
+                if (arena) arena.classList.remove('overloaded');
+                updateRageBar();
+            }, 5000);
+        }
     </script>
 </body>
 </html>
